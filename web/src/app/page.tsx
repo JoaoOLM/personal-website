@@ -6,6 +6,8 @@ import { FaGithub, FaLinkedin, FaEnvelope, FaKey, FaQuoteLeft } from "react-icon
 import fs from "fs";
 import path from "path";
 
+export const dynamic = "force-dynamic";
+
 // Read profile data on the server
 function getProfileData() {
   const profilePath = path.join(process.cwd(), "..", "profile.json");

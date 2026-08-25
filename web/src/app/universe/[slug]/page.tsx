@@ -15,14 +15,7 @@ function getProfileData() {
   return JSON.parse(fs.readFileSync(profilePath, "utf-8"));
 }
 
-// Generate static params for the slugs
-export async function generateStaticParams() {
-  const data = getProfileData();
-  const hobbies = data.personal_space?.hobbies || [];
-  return hobbies.map((h: any) => ({
-    slug: h.slug,
-  }));
-}
+export const dynamic = "force-dynamic";
 
 export default async function UniversePage({ params }: { params: Promise<{ slug: string }> }) {
   const resolvedParams = await params;

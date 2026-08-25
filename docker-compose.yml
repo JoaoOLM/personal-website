@@ -21,8 +21,8 @@ services:
 
   web:
     build:
-      context: ./web
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: web/Dockerfile
     container_name: portfolio-web
     ports:
       - "3000:3000"
@@ -30,6 +30,7 @@ services:
       # O frontend só lê imagens (que o backend pode adicionar) e as env locais
       - ./web/public/images:/app/public/images
       - ./web/.env.local:/app/.env.local
+      - ./profile.json:/profile.json
     depends_on:
       - api
     restart: unless-stopped
