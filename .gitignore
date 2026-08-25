@@ -1,0 +1,47 @@
+# === Secrets e Envs ===
+.env
+.env.*
+!.env.example
+*.pem
+
+# === Node / Next.js (Web) ===
+web/node_modules/
+web/.next/
+web/out/
+web/build/
+web/.swc/
+web/npm-debug.log*
+web/yarn-debug.log*
+web/yarn-error.log*
+web/.pnp
+web/.pnp.js
+web/coverage/
+web/.vercel/
+
+# === Python / FastAPI (Api) ===
+api/.venv/
+api/venv/
+api/env/
+api/__pycache__/
+api/*.py[cod]
+api/*$py.class
+api/.pytest_cache/
+api/.coverage
+api/htmlcov/
+api/pip-log.txt
+api/pip-delete-this-directory.txt
+api/.ruff_cache/
+api/uv.lock.bak
+
+# === OS & IDEs ===
+.DS_Store
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# === Images ===
+web/public/images/

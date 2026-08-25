@@ -1,0 +1,110 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-earth-bg: #292524;
+  --color-earth-dark: #1c1917;
+  --color-earth-border: #57534e;
+  
+  --color-forest-primary: #22c55e;
+  --color-forest-dark: #16a34a;
+  --color-forest-glow: rgba(34, 197, 94, 0.3);
+  
+  --color-amber-accent: #F59E0B;
+  --color-amber-glow: rgba(245, 158, 11, 0.4);
+}
+
+:root {
+  --background: var(--color-earth-bg);
+  --foreground: #e7e5e4;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: 'Inter', Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+  margin: 0;
+}
+
+/* Glassmorphism utility classes */
+@utility glass {
+  background: rgba(41, 37, 36, 0.55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(87, 83, 78, 0.4);
+}
+
+@utility glass-card {
+  background: rgba(55, 50, 47, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(87, 83, 78, 0.6);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15);
+}
+
+@utility glow {
+  box-shadow: 0 0 15px var(--color-amber-glow);
+}
+
+@utility glow-green {
+  box-shadow: 0 0 15px var(--color-forest-glow);
+}
+
+@utility glow-hover {
+  transition: box-shadow 0.3s ease-in-out, transform 0.3s ease;
+  &:hover {
+    box-shadow: 0 0 25px var(--color-amber-glow);
+  }
+}
+
+@utility glow-green-hover {
+  transition: box-shadow 0.3s ease-in-out, transform 0.3s ease;
+  &:hover {
+    box-shadow: 0 0 20px var(--color-forest-glow);
+  }
+}
+
+@utility shimmer {
+  position: relative;
+  overflow: hidden;
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(245, 158, 11, 0.08),
+      transparent
+    );
+    animation: shimmer 3s ease-in-out infinite;
+  }
+}
+
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+/* Custom Scrollbar for Terminal */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-earth-dark);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-earth-border);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-forest-primary);
+}

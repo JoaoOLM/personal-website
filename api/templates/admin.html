@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — João Portfolio</title>
+<script src="https://accounts.google.com/gsi/client" async></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#1c1917;color:#e7e5e4;min-height:100vh}
+.login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:1rem}
+.login-wrap h1{font-size:1.5rem;color:#22c55e}
+.login-wrap p{color:#a8a29e;font-size:.9rem}
+.app{display:none;max-width:900px;margin:0 auto;padding:2rem 1rem}
+.app.active{display:block}
+.login-wrap.hidden{display:none}
+h1{font-size:1.6rem;margin-bottom:1.5rem;color:#22c55e}
+h2{font-size:1.1rem;margin:1.5rem 0 .75rem;color:#f59e0b;border-bottom:1px solid #57534e;padding-bottom:.5rem}
+label{display:block;font-size:.8rem;color:#a8a29e;margin-bottom:.25rem;margin-top:.75rem}
+input,textarea,select{width:100%;padding:.5rem .75rem;background:#292524;border:1px solid #57534e;border-radius:8px;color:#e7e5e4;font-size:.9rem;resize:vertical}
+input:focus,textarea:focus,select:focus{outline:none;border-color:#22c55e;box-shadow:0 0 8px rgba(34,197,94,.2)}
+textarea{min-height:80px}
+.btn{padding:.5rem 1.25rem;border:none;border-radius:8px;cursor:pointer;font-size:.85rem;font-weight:600;transition:all .2s}
+.btn-primary{background:#16a34a;color:#fff}.btn-primary:hover{background:#22c55e;box-shadow:0 0 12px rgba(34,197,94,.3)}
+.btn-danger{background:#dc2626;color:#fff}.btn-danger:hover{background:#ef4444}
+.btn-sm{padding:.3rem .75rem;font-size:.75rem}
+.save-bar{position:sticky;top:0;background:#1c1917ee;backdrop-filter:blur(8px);padding:1rem 0;display:flex;justify-content:space-between;align-items:center;z-index:10;border-bottom:1px solid #57534e}
+.status{font-size:.8rem;color:#a8a29e}
+.status.ok{color:#22c55e}
+.status.err{color:#ef4444}
+.phase-card{background:#292524;border:1px solid #57534e;border-radius:12px;padding:1rem;margin-bottom:.75rem}
+.phase-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem}
+.hobby-card{background:#292524;border:1px solid #57534e;border-radius:12px;padding:1rem;margin-bottom:.75rem}
+.cmd-row{display:flex;gap:.5rem;margin-bottom:.5rem;align-items:center}
+.cmd-row input{flex:1}
+.upload-area{border:2px dashed #57534e;border-radius:12px;padding:2rem;text-align:center;cursor:pointer;transition:all .2s;margin-top:.5rem}
+.upload-area:hover{border-color:#22c55e;background:#292524}
+.img-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:1rem;margin-top:1rem}
+.img-card{position:relative;border-radius:8px;overflow:hidden;border:1px solid #57534e}
+.img-card img{width:100%;height:120px;object-fit:cover}
+.img-card .del{position:absolute;top:4px;right:4px;background:#dc2626;color:#fff;border:none;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:.7rem}
+.img-card p{padding:.25rem .5rem;font-size:.7rem;color:#a8a29e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tabs{display:flex;gap:.5rem;margin-bottom:1.5rem;flex-wrap:wrap}
+.tab{padding:.4rem 1rem;border-radius:8px;border:1px solid #57534e;background:transparent;color:#a8a29e;cursor:pointer;font-size:.8rem;transition:all .2s}
+.tab.active{background:#16a34a;color:#fff;border-color:#16a34a}
+.tab:hover:not(.active){border-color:#22c55e;color:#e7e5e4}
+.section{display:none}.section.active{display:block}
+.logout{background:transparent;border:1px solid #57534e;color:#a8a29e;padding:.3rem .75rem;border-radius:6px;cursor:pointer;font-size:.75rem}.logout:hover{border-color:#ef4444;color:#ef4444}
+</style>
+</head>
+<body>
+
+<div class="login-wrap" id="loginWrap">
+  <h1>🔒 Admin Login</h1>
+  <p>Faça login com sua conta Google autorizada.</p>
+  <div id="g_id_onload"
+    data-client_id="{{GOOGLE_CLIENT_ID}}"
+    data-callback="handleGoogleLogin"
+    data-auto_prompt="false">
+  </div>
+  <div class="g_id_signin" data-type="standard" data-theme="filled_black" data-size="large"></div>
+</div>
+
+<div class="app" id="app">
+  <div class="save-bar">
+    <div>
+      <h1 style="margin:0">⚙️ Admin Panel</h1>
+      <span class="status" id="status"></span>
+    </div>
+    <div style="display:flex;gap:.5rem;align-items:center">
+      <button class="btn btn-primary" onclick="saveProfile()">💾 Salvar Tudo</button>
+      <button class="logout" onclick="logout()">Sair</button>
+    </div>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <button class="tab active" onclick="showTab('profile',this)">Perfil</button>
+    <button class="tab" onclick="showTab('terminal',this)">Terminal IA</button>
+    <button class="tab" onclick="showTab('mestrado',this)">Mestrado</button>
+    <button class="tab" onclick="showTab('pessoal',this)">Pessoal</button>
+    <button class="tab" onclick="showTab('imagens',this)">Imagens</button>
+  </div>
+
+  <!-- PROFILE -->
+  <div class="section active" id="sec-profile">
+    <h2>Informações do Perfil</h2>
+    <label>Nome</label><input id="p-name">
+    <label>Cargo / Função</label><input id="p-role">
+    <label>Localização</label><input id="p-location">
+    <label>Status</label><input id="p-status">
+    <label>Headline</label><textarea id="p-headline"></textarea>
+    <label>Bio</label><textarea id="p-bio"></textarea>
+    <h2>Redes Sociais</h2>
+    <label>LinkedIn URL</label><input id="p-linkedin">
+    <label>Email</label><input id="p-email">
+    <label>PGP Key</label><input id="p-pgp">
+  </div>
+
+  <!-- TERMINAL -->
+  <div class="section" id="sec-terminal">
+    <h2>Prompt do Sistema (IA)</h2>
+    <textarea id="t-prompt" style="min-height:120px"></textarea>
+    <h2>Comandos Rápidos</h2>
+    <div id="cmds-list"></div>
+    <button class="btn btn-sm btn-primary" onclick="addCmd()" style="margin-top:.5rem">+ Adicionar Comando</button>
+  </div>
+
+  <!-- MESTRADO -->
+  <div class="section" id="sec-mestrado">
+    <h2>Dados do Programa</h2>
+    <label>Instituição</label><input id="m-inst">
+    <label>Programa</label><input id="m-prog">
+    <label>Área</label><input id="m-area">
+    <label>Status</label><input id="m-status">
+    <h2>Fases</h2>
+    <div id="phases-list"></div>
+  </div>
+
+  <!-- PESSOAL -->
+  <div class="section" id="sec-pessoal">
+    <h2>Reflexão / Citação</h2>
+    <label>Texto da Reflexão</label><textarea id="q-text"></textarea>
+    <label>Autor</label><input id="q-author">
+
+    <h2>Leitura Atual</h2>
+    <label>Título</label><input id="r-title">
+    <label>Autor</label><input id="r-author">
+    <label>Formato</label><input id="r-format">
+    <label>Status</label><input id="r-status">
+    <label>Pensamentos</label><textarea id="r-thoughts"></textarea>
+    <h2>Hobbies</h2>
+    <div id="hobbies-list"></div>
+    <button class="btn btn-sm btn-primary" onclick="addHobby()" style="margin-top:.5rem">+ Adicionar Hobby</button>
+    <h2>Stack & Preferências</h2>
+    <label>SO</label><input id="s-os">
+    <label>Ferramentas de Terminal</label><input id="s-terminal">
+    <label>Cloud & Infra</label><input id="s-cloud">
+    <label>Linguagens</label><input id="s-langs">
+    <label>Filosofia</label><textarea id="s-philosophy"></textarea>
+  </div>
+
+  <!-- IMAGES -->
+  <div class="section" id="sec-imagens">
+    <h2>Upload de Imagens</h2>
+    <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+      <p>📁 Clique para selecionar imagens</p>
+      <input type="file" id="fileInput" accept="image/*" multiple style="display:none" onchange="uploadFiles(this.files)">
+    </div>
+    <h2>Imagens Disponíveis</h2>
+    <div class="img-grid" id="img-grid"></div>
+  </div>
+</div>
+
+<script>
+const API = window.location.origin;
+let profileData = {};
+let sessionToken = '';
+
+function handleGoogleLogin(response) {
+  fetch(API + '/api/auth/google', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({credential: response.credential})
+  }).then(r => {
+    if (!r.ok) throw new Error('Unauthorized');
+    return r.json();
+  }).then(d => {
+    sessionToken = d.token;
+    localStorage.setItem('admin_token', sessionToken);
+    showApp();
+  }).catch(e => alert('Acesso negado. Verifique se seu email está autorizado.'));
+}
+
+function authHeaders() {
+  return {'Authorization': 'Bearer ' + sessionToken, 'Content-Type': 'application/json'};
+}
+
+function showApp() {
+  document.getElementById('loginWrap').classList.add('hidden');
+  document.getElementById('app').classList.add('active');
+  loadProfile();
+  loadImages();
+}
+
+function logout() {
+  sessionToken = '';
+  localStorage.removeItem('admin_token');
+  location.reload();
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem('admin_token');
+  if (saved) {
+    sessionToken = saved;
+    fetch(API + '/api/profile', {headers: authHeaders()}).then(r => {
+      if (r.ok) showApp(); else logout();
+    }).catch(() => logout());
+  }
+});
+
+function showTab(name, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('sec-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+
+function setStatus(msg, ok) {
+  const el = document.getElementById('status');
+  el.textContent = msg;
+  el.className = 'status ' + (ok ? 'ok' : 'err');
+  if (ok) setTimeout(() => el.textContent = '', 3000);
+}
+
+async function loadProfile() {
+  try {
+    const r = await fetch(API + '/api/profile', {headers: authHeaders()});
+    profileData = await r.json();
+    populateForm();
+  } catch(e) { setStatus('Erro ao carregar perfil', false); }
+}
+
+function populateForm() {
+  const p = profileData.profile || {};
+  document.getElementById('p-name').value = p.name || '';
+  document.getElementById('p-role').value = p.role || '';
+  document.getElementById('p-location').value = p.location || '';
+  document.getElementById('p-status').value = p.status || '';
+  document.getElementById('p-headline').value = p.headline || '';
+  document.getElementById('p-bio').value = p.bio || '';
+  document.getElementById('p-linkedin').value = (p.socials||{}).linkedin || '';
+  document.getElementById('p-email').value = (p.socials||{}).email || '';
+  document.getElementById('p-pgp').value = (p.socials||{}).pgp || '';
+
+  const tc = profileData.terminal_context || {};
+  document.getElementById('t-prompt').value = tc.system_prompt || '';
+  renderCmds(tc.quick_commands || []);
+
+  const md = profileData.master_degree || {};
+  document.getElementById('m-inst').value = md.institution || '';
+  document.getElementById('m-prog').value = md.program || '';
+  document.getElementById('m-area').value = md.area || '';
+  document.getElementById('m-status').value = md.status || '';
+  renderPhases(md.phases || []);
+
+  const ps = profileData.personal_space || {};
+  const quote = ps.quote || {};
+  document.getElementById('q-text').value = quote.text || '';
+  document.getElementById('q-author').value = quote.author || '';
+
+  const cr = ps.current_reading || {};
+  document.getElementById('r-title').value = cr.title || '';
+  document.getElementById('r-author').value = cr.author || '';
+  document.getElementById('r-format').value = cr.format || '';
+  document.getElementById('r-status').value = cr.status || '';
+  document.getElementById('r-thoughts').value = cr.thoughts || '';
+  renderHobbies(ps.hobbies || []);
+
+  const st = ps.preferences_and_stack || {};
+  document.getElementById('s-os').value = st.os || '';
+  document.getElementById('s-terminal').value = st.terminal_tools || '';
+  document.getElementById('s-cloud').value = st.cloud_and_infra || '';
+  document.getElementById('s-langs').value = st.languages || '';
+  document.getElementById('s-philosophy').value = st.philosophy || '';
+}
+
+function collectForm() {
+  profileData.profile = {
+    name: document.getElementById('p-name').value,
+    role: document.getElementById('p-role').value,
+    location: document.getElementById('p-location').value,
+    status: document.getElementById('p-status').value,
+    headline: document.getElementById('p-headline').value,
+    bio: document.getElementById('p-bio').value,
+    socials: {
+      linkedin: document.getElementById('p-linkedin').value,
+      email: document.getElementById('p-email').value,
+      pgp: document.getElementById('p-pgp').value,
+    }
+  };
+  profileData.terminal_context = {
+    system_prompt: document.getElementById('t-prompt').value,
+    quick_commands: collectCmds()
+  };
+  profileData.master_degree = {
+    ...profileData.master_degree,
+    institution: document.getElementById('m-inst').value,
+    program: document.getElementById('m-prog').value,
+    area: document.getElementById('m-area').value,
+    status: document.getElementById('m-status').value,
+    phases: collectPhases()
+  };
+  profileData.personal_space = {
+    quote: {
+      text: document.getElementById('q-text').value,
+      author: document.getElementById('q-author').value,
+    },
+    current_reading: {
+      title: document.getElementById('r-title').value,
+      author: document.getElementById('r-author').value,
+      format: document.getElementById('r-format').value,
+      status: document.getElementById('r-status').value,
+      thoughts: document.getElementById('r-thoughts').value,
+    },
+    hobbies: collectHobbies(),
+    preferences_and_stack: {
+      os: document.getElementById('s-os').value,
+      terminal_tools: document.getElementById('s-terminal').value,
+      cloud_and_infra: document.getElementById('s-cloud').value,
+      languages: document.getElementById('s-langs').value,
+      philosophy: document.getElementById('s-philosophy').value,
+    }
+  };
+}
+
+async function saveProfile() {
+  collectForm();
+  try {
+    const r = await fetch(API + '/api/profile', {
+      method: 'PUT', headers: authHeaders(),
+      body: JSON.stringify(profileData)
+    });
+    if (r.ok) setStatus('✓ Salvo com sucesso!', true);
+    else setStatus('Erro ao salvar', false);
+  } catch(e) { setStatus('Erro de conexão', false); }
+}
+
+// === Quick Commands ===
+function renderCmds(cmds) {
+  const el = document.getElementById('cmds-list');
+  el.innerHTML = cmds.map((c, i) => `<div class="cmd-row"><input value="${c.cmd}" data-cmd="${i}" placeholder="Comando"><input value="${c.label}" data-lbl="${i}" placeholder="Label"><button class="btn btn-sm btn-danger" onclick="removeCmd(${i})">✕</button></div>`).join('');
+}
+function collectCmds() {
+  return [...document.querySelectorAll('[data-cmd]')].map((el, i) => ({
+    cmd: el.value, label: document.querySelector(`[data-lbl="${i}"]`).value
+  }));
+}
+function addCmd() {
+  const list = collectCmds();
+  list.push({cmd: '', label: ''});
+  renderCmds(list);
+}
+function removeCmd(i) {
+  const list = collectCmds();
+  list.splice(i, 1);
+  renderCmds(list);
+}
+
+// === Phases ===
+function renderPhases(phases) {
+  const el = document.getElementById('phases-list');
+  el.innerHTML = phases.map((p, i) => `<div class="phase-card"><div class="phase-header"><strong>#${p.id} ${p.title}</strong><select data-pstatus="${i}"><option value="completed" ${p.status==='completed'?'selected':''}>Concluído</option><option value="in_progress" ${p.status==='in_progress'?'selected':''}>Em Andamento</option><option value="upcoming" ${p.status==='upcoming'?'selected':''}>Próxima</option><option value="future" ${p.status==='future'?'selected':''}>Futura</option></select></div><label>Título</label><input value="${p.title}" data-ptitle="${i}"><label>Label do Status</label><input value="${p.status_label||''}" data-plabel="${i}"><label>Descrição</label><textarea data-pdesc="${i}">${p.description}</textarea></div>`).join('');
+}
+function collectPhases() {
+  return [...document.querySelectorAll('[data-ptitle]')].map((el, i) => ({
+    id: i + 1,
+    title: el.value,
+    status: document.querySelector(`[data-pstatus="${i}"]`).value,
+    status_label: document.querySelector(`[data-plabel="${i}"]`).value,
+    description: document.querySelector(`[data-pdesc="${i}"]`).value,
+  }));
+}
+
+// === Hobbies ===
+function renderHobbies(hobbies) {
+  const el = document.getElementById('hobbies-list');
+  el.innerHTML = hobbies.map((h, i) => `
+    <div class="hobby-card">
+      <label>Slug (URL)</label><input value="${h.slug || ''}" data-hslug="${i}">
+      <label>Ícone (React Icon)</label><input value="${h.icon || 'FaCube'}" data-hicon="${i}">
+      <label>Título</label><input value="${h.title || ''}" data-htitle="${i}">
+      <label>Descrição Curta</label><textarea data-hdesc="${i}">${h.description || ''}</textarea>
+      <label>Tópicos (JSON Array)</label>
+      <textarea data-htopics="${i}" style="font-family:monospace; font-size:0.8rem; height:120px;">${JSON.stringify(h.topics || [], null, 2)}</textarea>
+      <button class="btn btn-sm btn-danger" onclick="removeHobby(${i})" style="margin-top:.5rem">Remover Seção</button>
+    </div>`).join('');
+}
+function collectHobbies() {
+  return [...document.querySelectorAll('[data-hslug]')].map((el, i) => {
+    let topics = [];
+    try { topics = JSON.parse(document.querySelector(`[data-htopics="${i}"]`).value); } catch(e) {}
+    return {
+      slug: el.value,
+      icon: document.querySelector(`[data-hicon="${i}"]`).value,
+      title: document.querySelector(`[data-htitle="${i}"]`).value,
+      description: document.querySelector(`[data-hdesc="${i}"]`).value,
+      highlight: false,
+      topics: topics
+    };
+  });
+}
+function addHobby() {
+  const list = collectHobbies();
+  list.push({slug: '', icon: 'FaCube', title: 'Nova Seção', description: '', topics: []});
+  renderHobbies(list);
+}
+function removeHobby(i) {
+  const list = collectHobbies();
+  list.splice(i, 1);
+  renderHobbies(list);
+}
+
+// === Images ===
+async function loadImages() {
+  try {
+    const r = await fetch(API + '/api/images', {headers: authHeaders()});
+    const imgs = await r.json();
+    const el = document.getElementById('img-grid');
+    el.innerHTML = imgs.map(name => `<div class="img-card"><img src="http://localhost:3000/images/${name}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22150%22 height=%22120%22><rect fill=%22%23292524%22 width=%22150%22 height=%22120%22/><text fill=%22%23a8a29e%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 font-size=%2212%22>${name}</text></svg>'"><p>${name}</p><button class="del" onclick="deleteImage('${name}')">✕</button></div>`).join('');
+  } catch(e) {}
+}
+async function uploadFiles(files) {
+  for (const file of files) {
+    const fd = new FormData();
+    fd.append('file', file);
+    await fetch(API + '/api/upload-image', {method: 'POST', headers: {'Authorization': 'Bearer ' + sessionToken}, body: fd});
+  }
+  loadImages();
+  setStatus('✓ Imagens enviadas!', true);
+}
+async function deleteImage(name) {
+  if (!confirm('Deletar ' + name + '?')) return;
+  await fetch(API + '/api/images/' + name, {method: 'DELETE', headers: authHeaders()});
+  loadImages();
+}
+</script>
+</body>
+</html>
