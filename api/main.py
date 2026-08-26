@@ -35,11 +35,12 @@ ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "")
 SECRET_KEY = os.environ.get("SECRET_KEY", "change-me-in-production")
 serializer = URLSafeTimedSerializer(SECRET_KEY)
 
-PROFILE_PATH = os.path.join(os.path.dirname(__file__), "..", "profile.json")
-IMAGES_DIR = os.path.join(os.path.dirname(__file__), "..", "web", "public", "images")
-TEMPLATE_DIR = os.path.join(os.path.dirname(__file__), "templates")
-CACHE_DB = os.path.join(os.path.dirname(__file__), "cache.db")
-PORTFOLIO_DB = os.path.join(os.path.dirname(__file__), "portfolio.db")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+PROFILE_PATH = os.path.join(BASE_DIR, "..", "profile.json")
+IMAGES_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "web", "public", "images"))
+TEMPLATE_DIR = os.path.join(BASE_DIR, "templates")
+CACHE_DB = os.path.join(BASE_DIR, "cache.db")
+PORTFOLIO_DB = os.path.join(BASE_DIR, "portfolio.db")
 
 # Ensure images dir exists
 os.makedirs(IMAGES_DIR, exist_ok=True)
@@ -165,6 +166,10 @@ def admin_page():
     with open(template_path, "r", encoding="utf-8") as f:
         html = f.read()
     html = html.replace("{{GOOGLE_CLIENT_ID}}", GOOGLE_CLIENT_ID)
+    
+    frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:3000")
+    html = html.replace("{{FRONTEND_URL}}", frontend_url)
+    
     return HTMLResponse(content=html)
 
 

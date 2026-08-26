@@ -38,6 +38,8 @@ GCP_LOCATION=us-central1
 GOOGLE_CLIENT_ID=SEU_GOOGLE_CLIENT_ID
 ADMIN_EMAIL=seu_email@gmail.com
 SECRET_KEY=sua-chave-secreta-segura
+FRONTEND_URL=http://localhost:3000 # Para o painel de admin acessar o Live Preview local
+
 
 # S3 Storage / Magalu Cloud (Opcional - para Upload do CV)
 MGC_BUCKET_NAME=seu-bucket

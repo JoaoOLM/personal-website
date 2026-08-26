@@ -109,7 +109,7 @@
     <!-- Right Panel: Preview -->
     <div class="w-1/2 flex flex-col relative">
        <div class="absolute top-0 right-0 bg-earth-dark/80 backdrop-blur text-xs px-3 py-1 text-forest-primary border-b border-l border-earth-border rounded-bl z-20 shadow">Live Preview</div>
-       <iframe id="preview-frame" src="http://localhost:3000" class="w-full h-full border-none bg-earth-bg"></iframe>
+       <iframe id="preview-frame" src="{{FRONTEND_URL}}" class="w-full h-full border-none bg-earth-bg"></iframe>
     </div>
   </div>
 
@@ -297,11 +297,21 @@ async function uploadCV(file) {
 async function uploadFiles(files) {
   if (!files.length) return;
   showToast('Enviando imagens...', 'success');
+  let hasError = false;
   for (let f of files) {
     const fd = new FormData(); fd.append('file', f);
-    await fetch(API + '/api/upload-image', {method: 'POST', headers: {'Authorization': 'Bearer ' + sessionToken}, body: fd});
+    try {
+      const res = await fetch(API + '/api/upload-image', {method: 'POST', headers: {'Authorization': 'Bearer ' + sessionToken}, body: fd});
+      if (!res.ok) {
+        console.error(await res.text());
+        hasError = true;
+      }
+    } catch (e) {
+      hasError = true;
+    }
   }
-  showToast('✓ Imagens enviadas!');
+  if (hasError) showToast('Erro no envio. Verifique o log (F12).', 'error');
+  else showToast('✓ Imagens enviadas!');
   loadImages();
 }
 
@@ -314,7 +324,7 @@ async function loadImages() {
     const div = document.createElement('div');
     div.className = "relative group aspect-square rounded overflow-hidden border border-earth-border bg-earth-dark flex items-center justify-center";
     div.innerHTML = `
-      <img src="http://localhost:3000/images/${name}" class="w-full h-full object-cover">
+      <img src="{{FRONTEND_URL}}/images/${name}" class="w-full h-full object-cover">
       <div class="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
         <button onclick="deleteImage('${name}')" class="text-white bg-red-600 hover:bg-red-500 px-3 py-1.5 rounded text-xs font-bold shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-all">Excluir</button>
       </div>
