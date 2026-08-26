@@ -316,7 +316,7 @@ async function uploadFiles(files) {
 }
 
 async function loadImages() {
-  const r = await fetch(API + '/api/images');
+  const r = await fetch(API + '/api/images', { headers: authHeaders() });
   const imgs = await r.json();
   const grid = document.getElementById('img-grid');
   grid.innerHTML = '';
