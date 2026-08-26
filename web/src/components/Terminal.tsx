@@ -10,7 +10,13 @@ type Message = {
   content: string;
 };
 
-export default function Terminal() {
+type TerminalProps = {
+  data?: {
+    quick_commands?: { cmd: string; label: string }[];
+  };
+};
+
+export default function Terminal({ data }: TerminalProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "ai",
@@ -96,11 +102,11 @@ export default function Terminal() {
     }
   };
 
-  const quickActions = [
-    "> quem é o joão?",
-    "> hobbys & leituras",
-    "> fases do mestrado",
-    "> stack e preferencias",
+  const quickActions = data?.quick_commands || [
+    { cmd: "quem é o joão?", label: "Quem é o João?" },
+    { cmd: "hobbys & leituras", label: "Hobbies & Leituras" },
+    { cmd: "fases do mestrado", label: "Fases do Mestrado" },
+    { cmd: "stack e preferencias", label: "Stack e Preferências" },
   ];
 
   return (
@@ -168,13 +174,13 @@ export default function Terminal() {
 
       {/* Quick Actions */}
       <div className="px-4 py-2 flex flex-wrap gap-2 border-t border-earth-border/30 bg-earth-dark/20">
-        {quickActions.map((action) => (
+        {quickActions.map((action, idx) => (
           <button
-            key={action}
-            onClick={() => handleSubmit(undefined, action)}
+            key={idx}
+            onClick={() => handleSubmit(undefined, `> ${action.cmd}`)}
             className="text-xs font-[family-name:var(--font-mono)] px-3 py-1.5 rounded-full border border-earth-border/50 hover:border-forest-primary/60 text-foreground/70 hover:text-forest-primary transition-all hover:shadow-[0_0_10px_rgba(34,197,94,0.15)]"
           >
-            {action}
+            {`> ${action.label}`}
           </button>
         ))}
       </div>

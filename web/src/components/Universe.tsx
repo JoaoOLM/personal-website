@@ -1,12 +1,5 @@
-import { FaBook, FaDumbbell, FaLinux, FaGamepad, FaCube } from "react-icons/fa";
+import * as FaIcons from "react-icons/fa";
 import Link from "next/link";
-
-const iconMap: Record<string, any> = {
-  FaBook: FaBook,
-  FaDumbbell: FaDumbbell,
-  FaLinux: FaLinux,
-  FaGamepad: FaGamepad,
-};
 
 type UniverseItem = {
   slug: string;
@@ -27,7 +20,7 @@ export default function Universe({ items }: { items: UniverseItem[] }) {
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {items.map((card, idx) => {
-          const Icon = iconMap[card.icon] || FaCube;
+          const Icon = (FaIcons as any)[card.icon] || FaIcons.FaCube;
           return (
             <Link key={idx} href={`/universe/${card.slug}`}>
               <div

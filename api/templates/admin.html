@@ -37,6 +37,9 @@
        <div class="flex border-b border-earth-border bg-earth-dark overflow-x-auto">
          <button class="tab-btn px-4 py-3 text-sm font-medium border-b-2 border-forest-primary text-forest-primary whitespace-nowrap" onclick="showTab('perfil', this)">Perfil</button>
          <button class="tab-btn px-4 py-3 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 whitespace-nowrap" onclick="showTab('hobbies', this)">Universo</button>
+         <button class="tab-btn px-4 py-3 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 whitespace-nowrap" onclick="showTab('mestrado', this)">Mestrado</button>
+         <button class="tab-btn px-4 py-3 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 whitespace-nowrap" onclick="showTab('experiencia', this)">Experiência</button>
+         <button class="tab-btn px-4 py-3 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 whitespace-nowrap" onclick="showTab('ai', this)">Assistente IA</button>
          <button class="tab-btn px-4 py-3 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 whitespace-nowrap" onclick="showTab('socials', this)">Redes</button>
          <button class="tab-btn px-4 py-3 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 whitespace-nowrap" onclick="showTab('arquivos', this)">Mídia</button>
        </div>
@@ -67,12 +70,72 @@
              <button onclick="saveProfile()" class="w-full bg-forest-primary text-earth-dark font-bold py-2 rounded hover:bg-forest-dark transition">Salvar Alterações</button>
           </div>
           
-          <!-- Universo / Hobbies Tab -->
-          <div id="tab-hobbies" class="tab-content hidden space-y-6">
-             <h2 class="text-lg text-amber-accent font-bold">Universo Pessoal (Páginas)</h2>
+          <!-- Hobbies / Universe Tab -->
+          <div id="tab-hobbies" class="tab-content space-y-4 hidden">
+             <div class="flex justify-between items-center mb-4">
+               <h3 class="text-forest-primary font-medium">Cards do Universo</h3>
+               <button onclick="addHobby()" class="bg-earth-border hover:bg-forest-primary/20 text-forest-primary px-3 py-1 rounded text-sm">+ Novo</button>
+             </div>
              <div id="hobbies-wrapper" class="space-y-4"></div>
-             <button onclick="addHobby()" class="text-forest-primary border border-forest-primary px-4 py-2 rounded hover:bg-forest-primary hover:text-earth-dark text-sm">+ Novo Hobby</button>
              <button onclick="saveProfile()" class="w-full bg-forest-primary text-earth-dark font-bold py-2 rounded mt-6">Salvar Alterações</button>
+          </div>
+
+          <!-- Mestrado Tab -->
+          <div id="tab-mestrado" class="tab-content space-y-4 hidden">
+             <div>
+               <label class="block text-sm text-forest-primary mb-1">Instituição</label>
+               <input id="f-mst-inst" class="w-full bg-earth-bg border border-earth-border p-2 rounded outline-none">
+             </div>
+             <div>
+               <label class="block text-sm text-forest-primary mb-1">Programa</label>
+               <input id="f-mst-prog" class="w-full bg-earth-bg border border-earth-border p-2 rounded outline-none">
+             </div>
+             <div class="flex justify-between items-center mt-6 mb-2">
+               <h3 class="text-forest-primary font-medium">Fases da Linha do Tempo</h3>
+               <button onclick="addPhase()" class="bg-earth-border hover:bg-forest-primary/20 text-forest-primary px-3 py-1 rounded text-sm">+ Nova Fase</button>
+             </div>
+             <div id="phases-wrapper" class="space-y-4"></div>
+             <button onclick="saveProfile()" class="w-full bg-forest-primary text-earth-dark font-bold py-2 rounded mt-6">Salvar Alterações</button>
+          </div>
+
+          <!-- Experiencia Tab -->
+          <div id="tab-experiencia" class="tab-content space-y-4 hidden">
+             <div>
+               <label class="block text-sm text-forest-primary mb-1">Empresa</label>
+               <input id="f-exp-company" class="w-full bg-earth-bg border border-earth-border p-2 rounded outline-none">
+             </div>
+             <div>
+               <label class="block text-sm text-forest-primary mb-1">Cargo</label>
+               <input id="f-exp-role" class="w-full bg-earth-bg border border-earth-border p-2 rounded outline-none">
+             </div>
+             <div>
+               <label class="block text-sm text-forest-primary mb-1">Descrição</label>
+               <textarea id="f-exp-desc" rows="3" class="w-full bg-earth-bg border border-earth-border p-2 rounded outline-none"></textarea>
+             </div>
+             <div class="flex justify-between items-center mt-6 mb-2">
+               <h3 class="text-forest-primary font-medium">Destaques (Highlights)</h3>
+               <button onclick="addHighlight()" class="bg-earth-border hover:bg-forest-primary/20 text-forest-primary px-3 py-1 rounded text-sm">+ Novo Destaque</button>
+             </div>
+             <div id="highlights-wrapper" class="space-y-4"></div>
+             <button onclick="saveProfile()" class="w-full bg-forest-primary text-earth-dark font-bold py-2 rounded mt-6">Salvar Alterações</button>
+          </div>
+
+          <!-- AI Assistant Tab -->
+          <div id="tab-ai" class="tab-content hidden space-y-4">
+             <h2 class="text-lg text-amber-accent font-bold">Contexto da Inteligência Artificial</h2>
+             <div>
+               <label class="block text-sm text-forest-primary mb-1">System Prompt</label>
+               <textarea id="f-ai-prompt" rows="8" class="w-full bg-earth-bg border border-earth-border p-2 rounded outline-none text-sm text-gray-300" placeholder="Instruções para o Gemini..."></textarea>
+               <p class="text-xs text-gray-500 mt-1">Este texto define o comportamento, o tom e a persona do Gemini no chat do terminal.</p>
+             </div>
+             
+             <div class="flex justify-between items-center mt-6 mb-2">
+               <h3 class="text-forest-primary font-medium">Comandos Rápidos (Quick Commands)</h3>
+               <button onclick="addQuickCommand()" class="bg-earth-border hover:bg-forest-primary/20 text-forest-primary px-3 py-1 rounded text-sm">+ Novo Comando</button>
+             </div>
+             <div id="quick-commands-wrapper" class="space-y-4"></div>
+             
+             <button onclick="saveProfile()" class="w-full bg-forest-primary text-earth-dark font-bold py-2 rounded hover:bg-forest-dark transition mt-6">Salvar Configurações da IA</button>
           </div>
 
           <!-- Socials Tab -->
@@ -180,9 +243,20 @@ async function loadData() {
   document.getElementById('f-name').value = profileData.profile?.name || '';
   document.getElementById('f-role').value = profileData.profile?.role || '';
   document.getElementById('f-status').value = profileData.profile?.status || '';
-  document.getElementById('f-bio').value = profileData.profile?.bio || '';
+  document.getElementById('f-bio').value = profileData.profile.bio || '';
   document.getElementById('f-quote').value = profileData.personal_space?.quote?.text || '';
   document.getElementById('f-quote-author').value = profileData.personal_space?.quote?.author || '';
+  
+  if (profileData.master_degree) {
+    document.getElementById('f-mst-inst').value = profileData.master_degree.institution || '';
+    document.getElementById('f-mst-prog').value = profileData.master_degree.program || '';
+  }
+
+  if (profileData.current_job) {
+    document.getElementById('f-exp-company').value = profileData.current_job.company || '';
+    document.getElementById('f-exp-role').value = profileData.current_job.role || '';
+    document.getElementById('f-exp-desc').value = profileData.current_job.description || '';
+  }
   
   // Redes
   document.getElementById('s-github').value = profileData.profile?.socials?.github || '';
@@ -190,7 +264,13 @@ async function loadData() {
   document.getElementById('s-email').value = profileData.profile?.socials?.email || '';
   document.getElementById('s-pgp').value = profileData.profile?.socials?.pgp || '';
 
+  // AI Context
+  document.getElementById('f-ai-prompt').value = profileData.terminal_context?.system_prompt || '';
+
   renderHobbies();
+  renderMestrado();
+  renderExperiencia();
+  renderQuickCommands();
 }
 
 function renderHobbies() {
@@ -203,15 +283,19 @@ function renderHobbies() {
     box.className = "p-4 bg-earth-bg rounded border border-earth-border space-y-3 shadow-inner";
     box.innerHTML = `
       <div class="flex justify-between items-center">
-        <input class="bg-earth-dark border border-earth-border p-1 rounded text-sm font-bold text-amber-accent outline-none focus:border-amber-accent" value="${hobby.name}" onchange="updateHobby(${hIndex}, 'name', this.value)">
-        <button onclick="removeHobby(${hIndex})" class="text-red-500 hover:text-red-400 text-xs font-bold">Excluir</button>
+        <input class="w-full bg-earth-dark border border-earth-border p-1 rounded font-bold text-amber-accent outline-none focus:border-amber-accent" placeholder="Título (ex: Sistemas & Infra)" value="${hobby.title || hobby.name || ''}" onchange="updateHobby(${hIndex}, 'title', this.value)">
+        <button onclick="removeHobby(${hIndex})" class="text-red-500 hover:text-red-400 text-xs font-bold ml-2">Excluir</button>
+      </div>
+      <div>
+        <label class="text-xs text-gray-500">Descrição inicial</label>
+        <textarea class="w-full bg-earth-dark border border-earth-border p-1 rounded text-xs outline-none focus:border-forest-primary" rows="2" onchange="updateHobby(${hIndex}, 'description', this.value)">${hobby.description || ''}</textarea>
       </div>
       <div class="grid grid-cols-2 gap-2">
         <div><label class="text-xs text-gray-500">Slug da URL</label><input class="w-full bg-earth-dark border border-earth-border p-1 rounded text-xs outline-none focus:border-forest-primary" value="${hobby.slug}" onchange="updateHobby(${hIndex}, 'slug', this.value)"></div>
-        <div><label class="text-xs text-gray-500">Ícone (React Icon)</label><input class="w-full bg-earth-dark border border-earth-border p-1 rounded text-xs outline-none focus:border-forest-primary" value="${hobby.icon}" onchange="updateHobby(${hIndex}, 'icon', this.value)"></div>
+        <div><label class="text-xs text-gray-500">Ícone (ex: FaCloud, FaLinux)</label><input class="w-full bg-earth-dark border border-earth-border p-1 rounded text-xs outline-none focus:border-forest-primary" value="${hobby.icon}" onchange="updateHobby(${hIndex}, 'icon', this.value)"></div>
       </div>
       <div class="mt-4 border-t border-earth-border pt-2 space-y-2" id="topics-${hIndex}"></div>
-      <button onclick="addTopic(${hIndex})" class="text-xs text-forest-primary mt-2 flex items-center gap-1"><span class="text-lg">+</span> Adicionar Tópico (Livro, Tech, etc)</button>
+      <button onclick="addTopic(${hIndex})" class="text-xs text-forest-primary mt-2 flex items-center gap-1"><span class="text-lg">+</span> Adicionar Tópico</button>
     `;
     wrapper.appendChild(box);
     
@@ -235,7 +319,7 @@ function renderHobbies() {
 // State mutators
 function addHobby() {
   if (!profileData.personal_space.hobbies) profileData.personal_space.hobbies = [];
-  profileData.personal_space.hobbies.push({name: "Novo Universo", slug: "novo", icon: "FaCube", topics: []});
+  profileData.personal_space.hobbies.push({title: "Novo Universo", slug: "novo", icon: "FaCube", description: "", topics: []});
   renderHobbies();
 }
 function removeHobby(hIdx) { profileData.personal_space.hobbies.splice(hIdx, 1); renderHobbies(); }
@@ -249,6 +333,96 @@ function addTopic(hIdx) {
 function removeTopic(hIdx, tIdx) { profileData.personal_space.hobbies[hIdx].topics.splice(tIdx, 1); renderHobbies(); }
 function updateTopic(hIdx, tIdx, field, val) { profileData.personal_space.hobbies[hIdx].topics[tIdx][field] = val; }
 
+function renderMestrado() {
+  const wrapper = document.getElementById('phases-wrapper');
+  wrapper.innerHTML = '';
+  const phases = profileData.master_degree?.phases || [];
+  
+  phases.forEach((phase, pIndex) => {
+    const box = document.createElement('div');
+    box.className = "flex gap-2 items-start bg-earth-dark p-3 rounded border border-earth-border";
+    box.innerHTML = `
+      <div class="flex-1 space-y-2">
+        <input class="w-full bg-transparent border-b border-earth-border text-sm font-semibold outline-none focus:border-forest-primary text-gray-200" placeholder="Título da fase" value="${phase.title || ''}" onchange="updatePhase(${pIndex}, 'title', this.value)">
+        <textarea class="w-full bg-transparent border border-transparent text-xs outline-none focus:border-forest-primary text-gray-400" rows="2" placeholder="Descrição" onchange="updatePhase(${pIndex}, 'description', this.value)">${phase.description || ''}</textarea>
+        <select class="bg-earth-bg border border-earth-border text-xs p-1 rounded text-gray-300 outline-none" onchange="updatePhase(${pIndex}, 'status', this.value)">
+          <option value="completed" ${phase.status==='completed'?'selected':''}>Concluído</option>
+          <option value="in_progress" ${phase.status==='in_progress'?'selected':''}>Em Andamento</option>
+          <option value="upcoming" ${phase.status==='upcoming'?'selected':''}>Próximo</option>
+          <option value="pending" ${phase.status==='pending'?'selected':''}>Pendente</option>
+        </select>
+      </div>
+      <button onclick="removePhase(${pIndex})" class="text-red-500 hover:bg-red-500/20 px-2 py-1 rounded text-xs font-bold">X</button>
+    `;
+    wrapper.appendChild(box);
+  });
+}
+
+function addPhase() {
+  if (!profileData.master_degree) profileData.master_degree = { phases: [] };
+  if (!profileData.master_degree.phases) profileData.master_degree.phases = [];
+  profileData.master_degree.phases.push({ id: Date.now(), title: "Nova Fase", description: "", status: "pending" });
+  renderMestrado();
+}
+function removePhase(pIdx) { profileData.master_degree.phases.splice(pIdx, 1); renderMestrado(); }
+function updatePhase(pIdx, field, val) { profileData.master_degree.phases[pIdx][field] = val; }
+
+function renderExperiencia() {
+  const wrapper = document.getElementById('highlights-wrapper');
+  wrapper.innerHTML = '';
+  const highlights = profileData.current_job?.highlights || [];
+  
+  highlights.forEach((hl, idx) => {
+    const box = document.createElement('div');
+    box.className = "flex gap-2 items-start bg-earth-dark p-3 rounded border border-earth-border";
+    box.innerHTML = `
+      <div class="flex-1 space-y-2">
+        <input class="w-full bg-transparent border-b border-earth-border text-sm font-semibold outline-none focus:border-forest-primary text-gray-200" placeholder="Título do Destaque" value="${hl.title || ''}" onchange="updateHighlight(${idx}, 'title', this.value)">
+        <textarea class="w-full bg-transparent border border-transparent text-xs outline-none focus:border-forest-primary text-gray-400" rows="3" placeholder="Descrição" onchange="updateHighlight(${idx}, 'description', this.value)">${hl.description || ''}</textarea>
+      </div>
+      <button onclick="removeHighlight(${idx})" class="text-red-500 hover:bg-red-500/20 px-2 py-1 rounded text-xs font-bold">X</button>
+    `;
+    wrapper.appendChild(box);
+  });
+}
+
+function addHighlight() {
+  if (!profileData.current_job) profileData.current_job = { highlights: [] };
+  if (!profileData.current_job.highlights) profileData.current_job.highlights = [];
+  profileData.current_job.highlights.push({ title: "Novo Destaque", description: "" });
+  renderExperiencia();
+}
+function removeHighlight(idx) { profileData.current_job.highlights.splice(idx, 1); renderExperiencia(); }
+function updateHighlight(idx, field, val) { profileData.current_job.highlights[idx][field] = val; }
+
+function renderQuickCommands() {
+  const wrapper = document.getElementById('quick-commands-wrapper');
+  wrapper.innerHTML = '';
+  const cmds = profileData.terminal_context?.quick_commands || [];
+  
+  cmds.forEach((cmd, idx) => {
+    const box = document.createElement('div');
+    box.className = "flex gap-2 items-center bg-earth-dark p-3 rounded border border-earth-border";
+    box.innerHTML = `
+      <div class="flex-1 grid grid-cols-2 gap-2">
+        <div><label class="text-xs text-gray-500">Label (Botão)</label><input class="w-full bg-transparent border-b border-earth-border text-sm outline-none focus:border-forest-primary text-gray-200" placeholder="Ex: Quem é o João?" value="${cmd.label || ''}" onchange="updateQuickCommand(${idx}, 'label', this.value)"></div>
+        <div><label class="text-xs text-gray-500">Comando Enviado</label><input class="w-full bg-transparent border-b border-earth-border text-sm outline-none focus:border-forest-primary text-amber-accent" placeholder="Ex: quem é o joão?" value="${cmd.cmd || ''}" onchange="updateQuickCommand(${idx}, 'cmd', this.value)"></div>
+      </div>
+      <button onclick="removeQuickCommand(${idx})" class="text-red-500 hover:bg-red-500/20 px-2 py-1 rounded text-xs font-bold">X</button>
+    `;
+    wrapper.appendChild(box);
+  });
+}
+
+function addQuickCommand() {
+  if (!profileData.terminal_context) profileData.terminal_context = { quick_commands: [] };
+  if (!profileData.terminal_context.quick_commands) profileData.terminal_context.quick_commands = [];
+  profileData.terminal_context.quick_commands.push({ cmd: "novo comando", label: "Novo Comando" });
+  renderQuickCommands();
+}
+function removeQuickCommand(idx) { profileData.terminal_context.quick_commands.splice(idx, 1); renderQuickCommands(); }
+function updateQuickCommand(idx, field, val) { profileData.terminal_context.quick_commands[idx][field] = val; }
+
 async function saveProfile() {
   // Sync basic fields
   if(!profileData.profile) profileData.profile = {};
@@ -257,7 +431,16 @@ async function saveProfile() {
   profileData.profile.status = document.getElementById('f-status').value;
   profileData.profile.bio = document.getElementById('f-bio').value;
   
-  if(!profileData.profile.socials) profileData.profile.socials = {};
+  if (!profileData.master_degree) profileData.master_degree = {};
+  profileData.master_degree.institution = document.getElementById('f-mst-inst').value;
+  profileData.master_degree.program = document.getElementById('f-mst-prog').value;
+
+  if (!profileData.current_job) profileData.current_job = {};
+  profileData.current_job.company = document.getElementById('f-exp-company').value;
+  profileData.current_job.role = document.getElementById('f-exp-role').value;
+  profileData.current_job.description = document.getElementById('f-exp-desc').value;
+  
+  if (!profileData.profile.socials) profileData.profile.socials = {};
   profileData.profile.socials.github = document.getElementById('s-github').value;
   profileData.profile.socials.linkedin = document.getElementById('s-linkedin').value;
   profileData.profile.socials.email = document.getElementById('s-email').value;
@@ -268,6 +451,9 @@ async function saveProfile() {
     text: document.getElementById('f-quote').value,
     author: document.getElementById('f-quote-author').value
   };
+
+  if(!profileData.terminal_context) profileData.terminal_context = {};
+  profileData.terminal_context.system_prompt = document.getElementById('f-ai-prompt').value;
 
   try {
     showToast('Salvando...', 'success');

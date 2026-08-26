@@ -1,6 +1,7 @@
 import Terminal from "@/components/Terminal";
 import Universe from "@/components/Universe";
 import Timeline from "@/components/Timeline";
+import Experience from "@/components/Experience";
 import Image from "next/image";
 import { FaGithub, FaLinkedin, FaEnvelope, FaKey, FaQuoteLeft } from "react-icons/fa";
 // Fetch profile data from API
@@ -104,7 +105,7 @@ export default async function Home() {
           <h2 className="text-xl text-foreground/80 font-[family-name:var(--font-mono)] mb-2">/home/joao/terminal</h2>
           <p className="text-sm text-foreground/50">Interaja com a minha IA pessoal para descobrir mais.</p>
         </div>
-        <Terminal />
+        <Terminal data={data.terminal_context} />
       </section>
 
       {/* Universe Section */}
@@ -112,9 +113,16 @@ export default async function Home() {
         <Universe items={hobbies} />
       </section>
 
+      {/* Experience Section */}
+      {data.current_job && (
+        <section className="w-full mb-16 relative z-10">
+          <Experience data={data.current_job} />
+        </section>
+      )}
+
       {/* Timeline Section */}
       <section className="w-full mb-16 z-10">
-        <Timeline />
+        <Timeline data={data.master_degree} />
       </section>
 
       {/* Footer */}

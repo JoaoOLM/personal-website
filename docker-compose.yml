@@ -11,9 +11,11 @@ services:
       - ./api/.env:/app/api/.env
       # Monta as imagens para o backend conseguir fazer o upload para a pasta correta
       - ./web/public/images:/app/web/public/images
+      - ./api/gcp-key.json:/app/api/gcp-key.json:ro
     restart: unless-stopped
     environment:
       - PYTHONUNBUFFERED=1
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/api/gcp-key.json
 
   web:
     build:
@@ -31,3 +33,4 @@ services:
     restart: unless-stopped
     environment:
       - NODE_ENV=production
+      - API_URL=http://api:8000
