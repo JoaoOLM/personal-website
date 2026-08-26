@@ -108,3 +108,34 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-forest-primary);
 }
+
+/* CRT Effect */
+@utility crt-overlay {
+  position: relative;
+  &::before {
+    content: " ";
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.04));
+    z-index: 20;
+    background-size: 100% 3px, 3px 100%;
+    pointer-events: none;
+  }
+}
+
+@keyframes flicker {
+  0% { opacity: 0.98; }
+  5% { opacity: 0.92; }
+  10% { opacity: 0.98; }
+  15% { opacity: 1; }
+  100% { opacity: 1; }
+}
+
+@utility flicker {
+  animation: flicker 0.15s infinite;
+}
+

@@ -10,8 +10,6 @@ services:
       - "8000:8000"
     volumes:
       # Monta o profile.json para que edições via painel Admin persistam no host
-      - ./profile.json:/app/profile.json
-      # Monta o .env para leitura das credenciais (Opcional se já estiverem no profile, mas seguro manter)
       - ./api/.env:/app/api/.env
       # Monta as imagens para o backend conseguir fazer o upload para a pasta correta
       - ./web/public/images:/app/web/public/images
@@ -30,9 +28,9 @@ services:
       # O frontend só lê imagens (que o backend pode adicionar) e as env locais
       - ./web/public/images:/app/public/images
       - ./web/.env.local:/app/.env.local
-      - ./profile.json:/profile.json
     depends_on:
       - api
     restart: unless-stopped
     environment:
       - NODE_ENV=production
+      - API_URL=http://api:8000

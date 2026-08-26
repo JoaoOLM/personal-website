@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { FaTerminal, FaPaperPlane, FaChevronRight } from "react-icons/fa";
+import { FaTerminal, FaPaperPlane, FaChevronRight, FaVolumeUp, FaVolumeMute, FaDesktop } from "react-icons/fa";
 import ReactMarkdown from "react-markdown";
+import { playKeypressSound, playMessageStartSound } from "@/utils/audio";
 
 type Message = {
   role: "user" | "ai";
@@ -18,6 +19,8 @@ export default function Terminal() {
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(false);
+  const [crtEnabled, setCrtEnabled] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -35,6 +38,8 @@ export default function Terminal() {
     const query = presetMessage || input;
     if (!query.trim() || loading) return;
 
+    if (soundEnabled) playKeypressSound();
+
     setMessages((prev) => [...prev, { role: "user", content: query }]);
     if (!presetMessage) setInput("");
     setLoading(true);
@@ -47,16 +52,46 @@ export default function Terminal() {
       });
 
       if (!response.ok) throw new Error("Erro na rede.");
+      if (!response.body) throw new Error("Sem corpo na resposta");
 
-      const data = await response.json();
-      setMessages((prev) => [...prev, { role: "ai", content: data.reply }]);
+      setLoading(false);
+      if (soundEnabled) playMessageStartSound();
+      setMessages((prev) => [...prev, { role: "ai", content: "" }]);
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let done = false;
+
+      while (!done) {
+        const { value, done: readerDone } = await reader.read();
+        done = readerDone;
+        if (value) {
+          const chunk = decoder.decode(value, { stream: true });
+          setMessages((prev) => {
+            const newMessages = [...prev];
+            const lastIdx = newMessages.length - 1;
+            const lastMessage = { ...newMessages[lastIdx] };
+            
+            if (lastMessage.role === "ai") {
+              lastMessage.content += chunk;
+            }
+            newMessages[lastIdx] = lastMessage;
+            return newMessages;
+          });
+        }
+      }
     } catch (error) {
+      setLoading(false);
       setMessages((prev) => [
         ...prev,
         { role: "ai", content: "Erro ao conectar com a IA. O backend está rodando?" },
       ]);
-    } finally {
-      setLoading(false);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (soundEnabled && e.key !== 'Enter') {
+       playKeypressSound();
     }
   };
 
@@ -68,7 +103,7 @@ export default function Terminal() {
   ];
 
   return (
-    <div className="glass rounded-2xl overflow-hidden flex flex-col h-[500px] w-full max-w-4xl mx-auto shadow-2xl border-earth-border relative glow-green-hover">
+    <div className={`glass rounded-2xl overflow-hidden flex flex-col h-[500px] w-full max-w-4xl mx-auto shadow-2xl border-earth-border relative glow-green-hover ${crtEnabled ? 'crt-overlay flicker' : ''}`}>
       {/* Subtle glow effect on top edge */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-forest-primary/40 to-transparent"></div>
 
@@ -82,7 +117,15 @@ export default function Terminal() {
         <div className="flex items-center gap-2 text-foreground/70 text-sm font-[family-name:var(--font-mono)] ml-4">
           <FaTerminal size={14} />
           <span>joao@portfolio:~</span>
-          <div className="w-1.5 h-1.5 rounded-full bg-forest-primary animate-pulse shadow-[0_0_6px_#22c55e] ml-2"></div>
+          <div className="w-1.5 h-1.5 rounded-full bg-forest-primary animate-pulse shadow-[0_0_6px_#22c55e] ml-2 mr-4"></div>
+        </div>
+        <div className="ml-auto flex items-center gap-4 text-foreground/50">
+          <button type="button" onClick={() => setCrtEnabled(!crtEnabled)} className={`hover:text-forest-primary transition-colors ${crtEnabled ? 'text-forest-primary drop-shadow-[0_0_5px_rgba(34,197,94,0.8)]' : ''}`} title="Modo CRT">
+            <FaDesktop size={14} />
+          </button>
+          <button type="button" onClick={() => setSoundEnabled(!soundEnabled)} className={`hover:text-amber-accent transition-colors ${soundEnabled ? 'text-amber-accent drop-shadow-[0_0_5px_rgba(245,158,11,0.8)]' : ''}`} title="Efeitos Sonoros">
+            {soundEnabled ? <FaVolumeUp size={14} /> : <FaVolumeMute size={14} />}
+          </button>
         </div>
       </div>
 
@@ -145,6 +188,7 @@ export default function Terminal() {
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
+          onKeyDown={handleKeyDown}
           placeholder="Digite um comando ou faça uma pergunta..."
           className="flex-1 bg-transparent border-none outline-none font-[family-name:var(--font-mono)] text-foreground placeholder:text-foreground/30 focus:ring-0"
         />

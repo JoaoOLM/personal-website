@@ -1,6 +1,9 @@
 import os
 import json
 import shutil
+import sqlite3
+import hashlib
+import time
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -8,7 +11,7 @@ load_dotenv()
 
 from fastapi import FastAPI, HTTPException, UploadFile, File, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
 from pydantic import BaseModel
 from google import genai
 from google.genai import types
@@ -35,22 +38,76 @@ serializer = URLSafeTimedSerializer(SECRET_KEY)
 PROFILE_PATH = os.path.join(os.path.dirname(__file__), "..", "profile.json")
 IMAGES_DIR = os.path.join(os.path.dirname(__file__), "..", "web", "public", "images")
 TEMPLATE_DIR = os.path.join(os.path.dirname(__file__), "templates")
+CACHE_DB = os.path.join(os.path.dirname(__file__), "cache.db")
+PORTFOLIO_DB = os.path.join(os.path.dirname(__file__), "portfolio.db")
 
 # Ensure images dir exists
 os.makedirs(IMAGES_DIR, exist_ok=True)
 
+# === AI Cache Setup ===
+def init_cache_db():
+    conn = sqlite3.connect(CACHE_DB)
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS ai_cache
+                 (query_hash TEXT PRIMARY KEY, response TEXT)''')
+    conn.commit()
+    conn.close()
+
+init_cache_db()
+
+def get_cached_response(query: str):
+    q_hash = hashlib.md5(query.lower().strip().encode()).hexdigest()
+    conn = sqlite3.connect(CACHE_DB)
+    c = conn.cursor()
+    c.execute("SELECT response FROM ai_cache WHERE query_hash=?", (q_hash,))
+    res = c.fetchone()
+    conn.close()
+    return res[0] if res else None
+
+def save_to_cache(query: str, response: str):
+    q_hash = hashlib.md5(query.lower().strip().encode()).hexdigest()
+    conn = sqlite3.connect(CACHE_DB)
+    c = conn.cursor()
+    c.execute("INSERT OR REPLACE INTO ai_cache VALUES (?, ?)", (q_hash, response))
+    conn.commit()
+    conn.close()
+
+def init_portfolio_db():
+    conn = sqlite3.connect(PORTFOLIO_DB)
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS profile_data (id INTEGER PRIMARY KEY, data TEXT)''')
+    
+    # Migration from profile.json if db is empty
+    c.execute("SELECT COUNT(*) FROM profile_data")
+    if c.fetchone()[0] == 0:
+        if os.path.exists(PROFILE_PATH):
+            with open(PROFILE_PATH, "r", encoding="utf-8") as f:
+                data = f.read()
+                c.execute("INSERT INTO profile_data (id, data) VALUES (1, ?)", (data,))
+        else:
+            c.execute("INSERT INTO profile_data (id, data) VALUES (1, '{}')")
+    
+    conn.commit()
+    conn.close()
+
+init_portfolio_db()
 
 def load_profile():
-    try:
-        with open(PROFILE_PATH, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except FileNotFoundError:
-        return {"error": "profile.json not found"}
-
+    conn = sqlite3.connect(PORTFOLIO_DB)
+    c = conn.cursor()
+    c.execute("SELECT data FROM profile_data WHERE id=1")
+    row = c.fetchone()
+    conn.close()
+    if row:
+        return json.loads(row[0])
+    return {}
 
 def save_profile(data: dict):
-    with open(PROFILE_PATH, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
+    conn = sqlite3.connect(PORTFOLIO_DB)
+    c = conn.cursor()
+    c.execute("UPDATE profile_data SET data=? WHERE id=1", (json.dumps(data, ensure_ascii=False),))
+    conn.commit()
+    conn.close()
 
 
 profile_data = load_profile()
@@ -114,7 +171,7 @@ def admin_page():
 # === Profile API ===
 
 @app.get("/api/profile")
-def get_profile(_=Depends(verify_token)):
+def get_profile():
     return load_profile()
 
 
@@ -143,6 +200,45 @@ async def upload_image(file: UploadFile = File(...), _=Depends(verify_token)):
         content = await file.read()
         f.write(content)
     return {"filename": file.filename}
+
+@app.post("/api/upload-cv")
+async def upload_cv(file: UploadFile = File(...), _=Depends(verify_token)):
+    content = await file.read()
+    
+    mgc_bucket = os.getenv("MGC_BUCKET_NAME")
+    mgc_access_key = os.getenv("MGC_ACCESS_KEY")
+    mgc_secret_key = os.getenv("MGC_SECRET_KEY")
+    mgc_endpoint = os.getenv("MGC_ENDPOINT_URL")
+
+    # If S3 credentials are provided, upload to Magalu Cloud Bucket
+    if mgc_bucket and mgc_access_key and mgc_secret_key and mgc_endpoint:
+        import boto3
+        s3 = boto3.client(
+            's3',
+            endpoint_url=mgc_endpoint,
+            aws_access_key_id=mgc_access_key,
+            aws_secret_access_key=mgc_secret_key,
+            region_name="us-east-1" # Often required by boto3 even for custom endpoints
+        )
+        try:
+            s3.put_object(
+                Bucket=mgc_bucket,
+                Key='cv.pdf',
+                Body=content,
+                ContentType='application/pdf',
+                ACL='public-read'
+            )
+            return {"status": "ok", "filename": "cv.pdf", "storage": "s3"}
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"S3 Upload failed: {str(e)}")
+    
+    # Fallback to local storage if no S3 config
+    cv_dest = os.path.join(IMAGES_DIR, "..", "cv.pdf")
+    cv_dest = os.path.abspath(cv_dest)
+    with open(cv_dest, "wb") as f:
+        f.write(content)
+    return {"status": "ok", "filename": "cv.pdf", "storage": "local"}
+
 
 
 @app.delete("/api/images/{filename}")
@@ -175,7 +271,17 @@ IMPORTANTE: Nunca use formatação markdown (como **negrito**, *itálico*, ou # 
 """
 
     try:
-        response = client.models.generate_content(
+        cached_res = get_cached_response(request.message)
+        
+        if cached_res:
+            def iter_cached_response():
+                chunk_size = 4
+                for i in range(0, len(cached_res), chunk_size):
+                    yield cached_res[i:i+chunk_size]
+                    time.sleep(0.01)
+            return StreamingResponse(iter_cached_response(), media_type="text/plain")
+
+        response_stream = client.models.generate_content_stream(
             model='gemini-2.5-flash-lite',
             contents=request.message,
             config=types.GenerateContentConfig(
@@ -183,7 +289,16 @@ IMPORTANTE: Nunca use formatação markdown (como **negrito**, *itálico*, ou # 
                 temperature=0.7,
             ),
         )
-        return {"reply": response.text}
+        
+        def iter_response():
+            full_response = ""
+            for chunk in response_stream:
+                if chunk.text:
+                    full_response += chunk.text
+                    yield chunk.text
+            save_to_cache(request.message, full_response)
+
+        return StreamingResponse(iter_response(), media_type="text/plain")
     except Exception as e:
         import traceback
         traceback.print_exc()

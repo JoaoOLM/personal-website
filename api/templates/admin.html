@@ -1,160 +1,153 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin — João Portfolio</title>
-<script src="https://accounts.google.com/gsi/client" async></script>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',system-ui,sans-serif;background:#1c1917;color:#e7e5e4;min-height:100vh}
-.login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:1rem}
-.login-wrap h1{font-size:1.5rem;color:#22c55e}
-.login-wrap p{color:#a8a29e;font-size:.9rem}
-.app{display:none;max-width:900px;margin:0 auto;padding:2rem 1rem}
-.app.active{display:block}
-.login-wrap.hidden{display:none}
-h1{font-size:1.6rem;margin-bottom:1.5rem;color:#22c55e}
-h2{font-size:1.1rem;margin:1.5rem 0 .75rem;color:#f59e0b;border-bottom:1px solid #57534e;padding-bottom:.5rem}
-label{display:block;font-size:.8rem;color:#a8a29e;margin-bottom:.25rem;margin-top:.75rem}
-input,textarea,select{width:100%;padding:.5rem .75rem;background:#292524;border:1px solid #57534e;border-radius:8px;color:#e7e5e4;font-size:.9rem;resize:vertical}
-input:focus,textarea:focus,select:focus{outline:none;border-color:#22c55e;box-shadow:0 0 8px rgba(34,197,94,.2)}
-textarea{min-height:80px}
-.btn{padding:.5rem 1.25rem;border:none;border-radius:8px;cursor:pointer;font-size:.85rem;font-weight:600;transition:all .2s}
-.btn-primary{background:#16a34a;color:#fff}.btn-primary:hover{background:#22c55e;box-shadow:0 0 12px rgba(34,197,94,.3)}
-.btn-danger{background:#dc2626;color:#fff}.btn-danger:hover{background:#ef4444}
-.btn-sm{padding:.3rem .75rem;font-size:.75rem}
-.save-bar{position:sticky;top:0;background:#1c1917ee;backdrop-filter:blur(8px);padding:1rem 0;display:flex;justify-content:space-between;align-items:center;z-index:10;border-bottom:1px solid #57534e}
-.status{font-size:.8rem;color:#a8a29e}
-.status.ok{color:#22c55e}
-.status.err{color:#ef4444}
-.phase-card{background:#292524;border:1px solid #57534e;border-radius:12px;padding:1rem;margin-bottom:.75rem}
-.phase-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem}
-.hobby-card{background:#292524;border:1px solid #57534e;border-radius:12px;padding:1rem;margin-bottom:.75rem}
-.cmd-row{display:flex;gap:.5rem;margin-bottom:.5rem;align-items:center}
-.cmd-row input{flex:1}
-.upload-area{border:2px dashed #57534e;border-radius:12px;padding:2rem;text-align:center;cursor:pointer;transition:all .2s;margin-top:.5rem}
-.upload-area:hover{border-color:#22c55e;background:#292524}
-.img-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:1rem;margin-top:1rem}
-.img-card{position:relative;border-radius:8px;overflow:hidden;border:1px solid #57534e}
-.img-card img{width:100%;height:120px;object-fit:cover}
-.img-card .del{position:absolute;top:4px;right:4px;background:#dc2626;color:#fff;border:none;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:.7rem}
-.img-card p{padding:.25rem .5rem;font-size:.7rem;color:#a8a29e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tabs{display:flex;gap:.5rem;margin-bottom:1.5rem;flex-wrap:wrap}
-.tab{padding:.4rem 1rem;border-radius:8px;border:1px solid #57534e;background:transparent;color:#a8a29e;cursor:pointer;font-size:.8rem;transition:all .2s}
-.tab.active{background:#16a34a;color:#fff;border-color:#16a34a}
-.tab:hover:not(.active){border-color:#22c55e;color:#e7e5e4}
-.section{display:none}.section.active{display:block}
-.logout{background:transparent;border:1px solid #57534e;color:#a8a29e;padding:.3rem .75rem;border-radius:6px;cursor:pointer;font-size:.75rem}.logout:hover{border-color:#ef4444;color:#ef4444}
-</style>
+  <meta charset="UTF-8">
+  <title>Admin - Terminal Pessoal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            earth: { bg: '#292524', dark: '#1c1917', border: '#57534e' },
+            forest: { primary: '#22c55e', dark: '#16a34a' },
+            amber: { accent: '#F59E0B' }
+          }
+        }
+      }
+    }
+  </script>
 </head>
-<body>
-
-<div class="login-wrap" id="loginWrap">
-  <h1>🔒 Admin Login</h1>
-  <p>Faça login com sua conta Google autorizada.</p>
-  <div id="g_id_onload"
-    data-client_id="{{GOOGLE_CLIENT_ID}}"
-    data-callback="handleGoogleLogin"
-    data-auto_prompt="false">
-  </div>
-  <div class="g_id_signin" data-type="standard" data-theme="filled_black" data-size="large"></div>
-</div>
-
-<div class="app" id="app">
-  <div class="save-bar">
-    <div>
-      <h1 style="margin:0">⚙️ Admin Panel</h1>
-      <span class="status" id="status"></span>
+<body class="bg-earth-bg text-gray-200 h-screen overflow-hidden flex flex-col font-sans">
+  <!-- Toasts Container -->
+  <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2"></div>
+  
+  <header class="bg-earth-dark p-4 border-b border-earth-border flex justify-between items-center z-10">
+    <h1 class="text-xl font-mono text-forest-primary font-bold">~/admin/dashboard</h1>
+    <div id="auth-section">
+      <div id="g_id_onload" data-client_id="{{GOOGLE_CLIENT_ID}}" data-callback="handleGoogleLogin"></div>
+      <div class="g_id_signin" data-type="standard"></div>
     </div>
-    <div style="display:flex;gap:.5rem;align-items:center">
-      <button class="btn btn-primary" onclick="saveProfile()">💾 Salvar Tudo</button>
-      <button class="logout" onclick="logout()">Sair</button>
+  </header>
+
+  <div id="app-content" class="flex-1 flex overflow-hidden hidden">
+    <!-- Left Panel: Forms -->
+    <div class="w-1/2 flex flex-col border-r border-earth-border bg-earth-dark/50">
+       <div class="flex border-b border-earth-border bg-earth-dark overflow-x-auto">
+         <button class="tab-btn px-4 py-3 text-sm font-medium border-b-2 border-forest-primary text-forest-primary whitespace-nowrap" onclick="showTab('perfil', this)">Perfil</button>
+         <button class="tab-btn px-4 py-3 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 whitespace-nowrap" onclick="showTab('hobbies', this)">Universo</button>
+         <button class="tab-btn px-4 py-3 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 whitespace-nowrap" onclick="showTab('socials', this)">Redes</button>
+         <button class="tab-btn px-4 py-3 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 whitespace-nowrap" onclick="showTab('arquivos', this)">Mídia</button>
+       </div>
+       <div class="flex-1 overflow-y-auto p-6" id="form-container">
+          <!-- Perfil Tab -->
+          <div id="tab-perfil" class="tab-content space-y-4">
+             <div>
+               <label class="block text-sm text-forest-primary mb-1">Nome</label>
+               <input id="f-name" class="w-full bg-earth-bg border border-earth-border p-2 rounded focus:ring-1 focus:ring-forest-primary outline-none">
+             </div>
+             <div>
+               <label class="block text-sm text-forest-primary mb-1">Role</label>
+               <input id="f-role" class="w-full bg-earth-bg border border-earth-border p-2 rounded outline-none">
+             </div>
+             <div>
+               <label class="block text-sm text-forest-primary mb-1">Status</label>
+               <input id="f-status" class="w-full bg-earth-bg border border-earth-border p-2 rounded outline-none">
+             </div>
+             <div>
+               <label class="block text-sm text-forest-primary mb-1">Bio Principal</label>
+               <textarea id="f-bio" rows="4" class="w-full bg-earth-bg border border-earth-border p-2 rounded outline-none"></textarea>
+             </div>
+             <div>
+               <label class="block text-sm text-forest-primary mb-1">Reflexão (Quote)</label>
+               <textarea id="f-quote" rows="2" class="w-full bg-earth-bg border border-earth-border p-2 rounded outline-none"></textarea>
+               <input id="f-quote-author" placeholder="Autor" class="w-full bg-earth-bg border border-earth-border p-2 rounded outline-none mt-2">
+             </div>
+             <button onclick="saveProfile()" class="w-full bg-forest-primary text-earth-dark font-bold py-2 rounded hover:bg-forest-dark transition">Salvar Alterações</button>
+          </div>
+          
+          <!-- Universo / Hobbies Tab -->
+          <div id="tab-hobbies" class="tab-content hidden space-y-6">
+             <h2 class="text-lg text-amber-accent font-bold">Universo Pessoal (Páginas)</h2>
+             <div id="hobbies-wrapper" class="space-y-4"></div>
+             <button onclick="addHobby()" class="text-forest-primary border border-forest-primary px-4 py-2 rounded hover:bg-forest-primary hover:text-earth-dark text-sm">+ Novo Hobby</button>
+             <button onclick="saveProfile()" class="w-full bg-forest-primary text-earth-dark font-bold py-2 rounded mt-6">Salvar Alterações</button>
+          </div>
+
+          <!-- Socials Tab -->
+          <div id="tab-socials" class="tab-content hidden space-y-4">
+             <h2 class="text-lg text-amber-accent font-bold">Redes Sociais</h2>
+             <div><label class="block text-sm text-forest-primary mb-1">GitHub</label><input id="s-github" class="w-full bg-earth-bg border border-earth-border p-2 rounded outline-none"></div>
+             <div><label class="block text-sm text-forest-primary mb-1">LinkedIn</label><input id="s-linkedin" class="w-full bg-earth-bg border border-earth-border p-2 rounded outline-none"></div>
+             <div><label class="block text-sm text-forest-primary mb-1">Email</label><input id="s-email" class="w-full bg-earth-bg border border-earth-border p-2 rounded outline-none"></div>
+             <div><label class="block text-sm text-forest-primary mb-1">GPG / PGP Key</label><input id="s-pgp" class="w-full bg-earth-bg border border-earth-border p-2 rounded outline-none"></div>
+             <button onclick="saveProfile()" class="w-full bg-forest-primary text-earth-dark font-bold py-2 rounded hover:bg-forest-dark transition">Salvar Redes</button>
+          </div>
+
+          <!-- Arquivos -->
+          <div id="tab-arquivos" class="tab-content hidden space-y-6">
+             <div>
+               <h2 class="text-lg text-amber-accent font-bold mb-2">Upload de Currículo (S3)</h2>
+               <div onclick="document.getElementById('cvInput').click()" class="border-2 border-dashed border-earth-border p-6 text-center cursor-pointer hover:border-forest-primary rounded bg-earth-bg/50">
+                 <p>📄 Selecione o PDF do Currículo</p>
+               </div>
+               <input type="file" id="cvInput" accept="application/pdf" class="hidden" onchange="uploadCV(this.files[0])">
+             </div>
+             <div>
+               <h2 class="text-lg text-amber-accent font-bold mb-2">Imagens</h2>
+               <div onclick="document.getElementById('fileInput').click()" class="border-2 border-dashed border-earth-border p-6 text-center cursor-pointer hover:border-forest-primary rounded bg-earth-bg/50 mb-4">
+                 <p>📁 Enviar Imagens</p>
+               </div>
+               <input type="file" id="fileInput" accept="image/*" multiple class="hidden" onchange="uploadFiles(this.files)">
+               <div id="img-grid" class="grid grid-cols-3 gap-2"></div>
+             </div>
+          </div>
+       </div>
+    </div>
+    
+    <!-- Right Panel: Preview -->
+    <div class="w-1/2 flex flex-col relative">
+       <div class="absolute top-0 right-0 bg-earth-dark/80 backdrop-blur text-xs px-3 py-1 text-forest-primary border-b border-l border-earth-border rounded-bl z-20 shadow">Live Preview</div>
+       <iframe id="preview-frame" src="http://localhost:3000" class="w-full h-full border-none bg-earth-bg"></iframe>
     </div>
   </div>
-
-  <div class="tabs" id="tabs">
-    <button class="tab active" onclick="showTab('profile',this)">Perfil</button>
-    <button class="tab" onclick="showTab('terminal',this)">Terminal IA</button>
-    <button class="tab" onclick="showTab('mestrado',this)">Mestrado</button>
-    <button class="tab" onclick="showTab('pessoal',this)">Pessoal</button>
-    <button class="tab" onclick="showTab('imagens',this)">Imagens</button>
-  </div>
-
-  <!-- PROFILE -->
-  <div class="section active" id="sec-profile">
-    <h2>Informações do Perfil</h2>
-    <label>Nome</label><input id="p-name">
-    <label>Cargo / Função</label><input id="p-role">
-    <label>Localização</label><input id="p-location">
-    <label>Status</label><input id="p-status">
-    <label>Headline</label><textarea id="p-headline"></textarea>
-    <label>Bio</label><textarea id="p-bio"></textarea>
-    <h2>Redes Sociais</h2>
-    <label>LinkedIn URL</label><input id="p-linkedin">
-    <label>Email</label><input id="p-email">
-    <label>PGP Key</label><input id="p-pgp">
-  </div>
-
-  <!-- TERMINAL -->
-  <div class="section" id="sec-terminal">
-    <h2>Prompt do Sistema (IA)</h2>
-    <textarea id="t-prompt" style="min-height:120px"></textarea>
-    <h2>Comandos Rápidos</h2>
-    <div id="cmds-list"></div>
-    <button class="btn btn-sm btn-primary" onclick="addCmd()" style="margin-top:.5rem">+ Adicionar Comando</button>
-  </div>
-
-  <!-- MESTRADO -->
-  <div class="section" id="sec-mestrado">
-    <h2>Dados do Programa</h2>
-    <label>Instituição</label><input id="m-inst">
-    <label>Programa</label><input id="m-prog">
-    <label>Área</label><input id="m-area">
-    <label>Status</label><input id="m-status">
-    <h2>Fases</h2>
-    <div id="phases-list"></div>
-  </div>
-
-  <!-- PESSOAL -->
-  <div class="section" id="sec-pessoal">
-    <h2>Reflexão / Citação</h2>
-    <label>Texto da Reflexão</label><textarea id="q-text"></textarea>
-    <label>Autor</label><input id="q-author">
-
-    <h2>Leitura Atual</h2>
-    <label>Título</label><input id="r-title">
-    <label>Autor</label><input id="r-author">
-    <label>Formato</label><input id="r-format">
-    <label>Status</label><input id="r-status">
-    <label>Pensamentos</label><textarea id="r-thoughts"></textarea>
-    <h2>Hobbies</h2>
-    <div id="hobbies-list"></div>
-    <button class="btn btn-sm btn-primary" onclick="addHobby()" style="margin-top:.5rem">+ Adicionar Hobby</button>
-    <h2>Stack & Preferências</h2>
-    <label>SO</label><input id="s-os">
-    <label>Ferramentas de Terminal</label><input id="s-terminal">
-    <label>Cloud & Infra</label><input id="s-cloud">
-    <label>Linguagens</label><input id="s-langs">
-    <label>Filosofia</label><textarea id="s-philosophy"></textarea>
-  </div>
-
-  <!-- IMAGES -->
-  <div class="section" id="sec-imagens">
-    <h2>Upload de Imagens</h2>
-    <div class="upload-area" onclick="document.getElementById('fileInput').click()">
-      <p>📁 Clique para selecionar imagens</p>
-      <input type="file" id="fileInput" accept="image/*" multiple style="display:none" onchange="uploadFiles(this.files)">
-    </div>
-    <h2>Imagens Disponíveis</h2>
-    <div class="img-grid" id="img-grid"></div>
-  </div>
-</div>
 
 <script>
 const API = window.location.origin;
 let profileData = {};
 let sessionToken = '';
+
+function showToast(msg, type='success') {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  const color = type === 'success' ? 'bg-forest-primary text-earth-dark' : 'bg-red-500 text-white';
+  toast.className = `px-4 py-3 rounded shadow-lg font-medium transition-all transform duration-300 translate-x-full ${color}`;
+  toast.innerText = msg;
+  container.appendChild(toast);
+  
+  // slide in
+  requestAnimationFrame(() => {
+    toast.classList.remove('translate-x-full');
+  });
+  
+  setTimeout(() => {
+    toast.classList.add('translate-x-full');
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
+
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+  document.getElementById('tab-' + id).classList.remove('hidden');
+  
+  document.querySelectorAll('.tab-btn').forEach(el => {
+    el.classList.remove('border-forest-primary', 'text-forest-primary');
+    el.classList.add('border-transparent', 'text-gray-400');
+  });
+  btn.classList.remove('border-transparent', 'text-gray-400');
+  btn.classList.add('border-forest-primary', 'text-forest-primary');
+}
 
 function handleGoogleLogin(response) {
   fetch(API + '/api/auth/google', {
@@ -164,263 +157,176 @@ function handleGoogleLogin(response) {
   }).then(r => {
     if (!r.ok) throw new Error('Unauthorized');
     return r.json();
-  }).then(d => {
-    sessionToken = d.token;
-    localStorage.setItem('admin_token', sessionToken);
-    showApp();
-  }).catch(e => alert('Acesso negado. Verifique se seu email está autorizado.'));
+  }).then(data => {
+    sessionToken = data.token;
+    document.getElementById('auth-section').innerHTML = `<span class="text-sm">Logado como <b class="text-amber-accent">${data.email}</b></span>`;
+    document.getElementById('app-content').classList.remove('hidden');
+    loadData();
+    loadImages();
+  }).catch(err => {
+    showToast('Acesso negado', 'error');
+  });
 }
 
 function authHeaders() {
-  return {'Authorization': 'Bearer ' + sessionToken, 'Content-Type': 'application/json'};
+  return { 'Authorization': 'Bearer ' + sessionToken, 'Content-Type': 'application/json' };
 }
 
-function showApp() {
-  document.getElementById('loginWrap').classList.add('hidden');
-  document.getElementById('app').classList.add('active');
-  loadProfile();
-  loadImages();
+async function loadData() {
+  const r = await fetch(API + '/api/profile');
+  profileData = await r.json();
+  
+  // Perfil
+  document.getElementById('f-name').value = profileData.profile?.name || '';
+  document.getElementById('f-role').value = profileData.profile?.role || '';
+  document.getElementById('f-status').value = profileData.profile?.status || '';
+  document.getElementById('f-bio').value = profileData.profile?.bio || '';
+  document.getElementById('f-quote').value = profileData.personal_space?.quote?.text || '';
+  document.getElementById('f-quote-author').value = profileData.personal_space?.quote?.author || '';
+  
+  // Redes
+  document.getElementById('s-github').value = profileData.profile?.socials?.github || '';
+  document.getElementById('s-linkedin').value = profileData.profile?.socials?.linkedin || '';
+  document.getElementById('s-email').value = profileData.profile?.socials?.email || '';
+  document.getElementById('s-pgp').value = profileData.profile?.socials?.pgp || '';
+
+  renderHobbies();
 }
 
-function logout() {
-  sessionToken = '';
-  localStorage.removeItem('admin_token');
-  location.reload();
-}
-
-window.addEventListener('DOMContentLoaded', () => {
-  const saved = localStorage.getItem('admin_token');
-  if (saved) {
-    sessionToken = saved;
-    fetch(API + '/api/profile', {headers: authHeaders()}).then(r => {
-      if (r.ok) showApp(); else logout();
-    }).catch(() => logout());
-  }
-});
-
-function showTab(name, btn) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('sec-' + name).classList.add('active');
-  btn.classList.add('active');
-}
-
-function setStatus(msg, ok) {
-  const el = document.getElementById('status');
-  el.textContent = msg;
-  el.className = 'status ' + (ok ? 'ok' : 'err');
-  if (ok) setTimeout(() => el.textContent = '', 3000);
-}
-
-async function loadProfile() {
-  try {
-    const r = await fetch(API + '/api/profile', {headers: authHeaders()});
-    profileData = await r.json();
-    populateForm();
-  } catch(e) { setStatus('Erro ao carregar perfil', false); }
-}
-
-function populateForm() {
-  const p = profileData.profile || {};
-  document.getElementById('p-name').value = p.name || '';
-  document.getElementById('p-role').value = p.role || '';
-  document.getElementById('p-location').value = p.location || '';
-  document.getElementById('p-status').value = p.status || '';
-  document.getElementById('p-headline').value = p.headline || '';
-  document.getElementById('p-bio').value = p.bio || '';
-  document.getElementById('p-linkedin').value = (p.socials||{}).linkedin || '';
-  document.getElementById('p-email').value = (p.socials||{}).email || '';
-  document.getElementById('p-pgp').value = (p.socials||{}).pgp || '';
-
-  const tc = profileData.terminal_context || {};
-  document.getElementById('t-prompt').value = tc.system_prompt || '';
-  renderCmds(tc.quick_commands || []);
-
-  const md = profileData.master_degree || {};
-  document.getElementById('m-inst').value = md.institution || '';
-  document.getElementById('m-prog').value = md.program || '';
-  document.getElementById('m-area').value = md.area || '';
-  document.getElementById('m-status').value = md.status || '';
-  renderPhases(md.phases || []);
-
-  const ps = profileData.personal_space || {};
-  const quote = ps.quote || {};
-  document.getElementById('q-text').value = quote.text || '';
-  document.getElementById('q-author').value = quote.author || '';
-
-  const cr = ps.current_reading || {};
-  document.getElementById('r-title').value = cr.title || '';
-  document.getElementById('r-author').value = cr.author || '';
-  document.getElementById('r-format').value = cr.format || '';
-  document.getElementById('r-status').value = cr.status || '';
-  document.getElementById('r-thoughts').value = cr.thoughts || '';
-  renderHobbies(ps.hobbies || []);
-
-  const st = ps.preferences_and_stack || {};
-  document.getElementById('s-os').value = st.os || '';
-  document.getElementById('s-terminal').value = st.terminal_tools || '';
-  document.getElementById('s-cloud').value = st.cloud_and_infra || '';
-  document.getElementById('s-langs').value = st.languages || '';
-  document.getElementById('s-philosophy').value = st.philosophy || '';
-}
-
-function collectForm() {
-  profileData.profile = {
-    name: document.getElementById('p-name').value,
-    role: document.getElementById('p-role').value,
-    location: document.getElementById('p-location').value,
-    status: document.getElementById('p-status').value,
-    headline: document.getElementById('p-headline').value,
-    bio: document.getElementById('p-bio').value,
-    socials: {
-      linkedin: document.getElementById('p-linkedin').value,
-      email: document.getElementById('p-email').value,
-      pgp: document.getElementById('p-pgp').value,
-    }
-  };
-  profileData.terminal_context = {
-    system_prompt: document.getElementById('t-prompt').value,
-    quick_commands: collectCmds()
-  };
-  profileData.master_degree = {
-    ...profileData.master_degree,
-    institution: document.getElementById('m-inst').value,
-    program: document.getElementById('m-prog').value,
-    area: document.getElementById('m-area').value,
-    status: document.getElementById('m-status').value,
-    phases: collectPhases()
-  };
-  profileData.personal_space = {
-    quote: {
-      text: document.getElementById('q-text').value,
-      author: document.getElementById('q-author').value,
-    },
-    current_reading: {
-      title: document.getElementById('r-title').value,
-      author: document.getElementById('r-author').value,
-      format: document.getElementById('r-format').value,
-      status: document.getElementById('r-status').value,
-      thoughts: document.getElementById('r-thoughts').value,
-    },
-    hobbies: collectHobbies(),
-    preferences_and_stack: {
-      os: document.getElementById('s-os').value,
-      terminal_tools: document.getElementById('s-terminal').value,
-      cloud_and_infra: document.getElementById('s-cloud').value,
-      languages: document.getElementById('s-langs').value,
-      philosophy: document.getElementById('s-philosophy').value,
-    }
-  };
-}
-
-async function saveProfile() {
-  collectForm();
-  try {
-    const r = await fetch(API + '/api/profile', {
-      method: 'PUT', headers: authHeaders(),
-      body: JSON.stringify(profileData)
+function renderHobbies() {
+  const wrapper = document.getElementById('hobbies-wrapper');
+  wrapper.innerHTML = '';
+  const hobbies = profileData.personal_space?.hobbies || [];
+  
+  hobbies.forEach((hobby, hIndex) => {
+    const box = document.createElement('div');
+    box.className = "p-4 bg-earth-bg rounded border border-earth-border space-y-3 shadow-inner";
+    box.innerHTML = `
+      <div class="flex justify-between items-center">
+        <input class="bg-earth-dark border border-earth-border p-1 rounded text-sm font-bold text-amber-accent outline-none focus:border-amber-accent" value="${hobby.name}" onchange="updateHobby(${hIndex}, 'name', this.value)">
+        <button onclick="removeHobby(${hIndex})" class="text-red-500 hover:text-red-400 text-xs font-bold">Excluir</button>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div><label class="text-xs text-gray-500">Slug da URL</label><input class="w-full bg-earth-dark border border-earth-border p-1 rounded text-xs outline-none focus:border-forest-primary" value="${hobby.slug}" onchange="updateHobby(${hIndex}, 'slug', this.value)"></div>
+        <div><label class="text-xs text-gray-500">Ícone (React Icon)</label><input class="w-full bg-earth-dark border border-earth-border p-1 rounded text-xs outline-none focus:border-forest-primary" value="${hobby.icon}" onchange="updateHobby(${hIndex}, 'icon', this.value)"></div>
+      </div>
+      <div class="mt-4 border-t border-earth-border pt-2 space-y-2" id="topics-${hIndex}"></div>
+      <button onclick="addTopic(${hIndex})" class="text-xs text-forest-primary mt-2 flex items-center gap-1"><span class="text-lg">+</span> Adicionar Tópico (Livro, Tech, etc)</button>
+    `;
+    wrapper.appendChild(box);
+    
+    // Render topics
+    const topicsWrapper = document.getElementById(`topics-${hIndex}`);
+    (hobby.topics || []).forEach((topic, tIndex) => {
+      const tBox = document.createElement('div');
+      tBox.className = "flex gap-2 items-start bg-earth-dark p-2 rounded";
+      tBox.innerHTML = `
+        <div class="flex-1 space-y-1">
+          <input class="w-full bg-transparent border-b border-earth-border text-xs outline-none focus:border-forest-primary text-gray-200 placeholder:text-gray-600 pb-1" placeholder="Título do Tópico" value="${topic.title || ''}" onchange="updateTopic(${hIndex}, ${tIndex}, 'title', this.value)">
+          <input class="w-full bg-transparent border-b border-transparent text-xs outline-none focus:border-forest-primary text-gray-400 placeholder:text-gray-600" placeholder="Descrição ou link..." value="${topic.description || ''}" onchange="updateTopic(${hIndex}, ${tIndex}, 'description', this.value)">
+        </div>
+        <button onclick="removeTopic(${hIndex}, ${tIndex})" class="text-red-500 hover:bg-red-500/20 px-2 py-1 rounded text-xs">X</button>
+      `;
+      topicsWrapper.appendChild(tBox);
     });
-    if (r.ok) setStatus('✓ Salvo com sucesso!', true);
-    else setStatus('Erro ao salvar', false);
-  } catch(e) { setStatus('Erro de conexão', false); }
-}
-
-// === Quick Commands ===
-function renderCmds(cmds) {
-  const el = document.getElementById('cmds-list');
-  el.innerHTML = cmds.map((c, i) => `<div class="cmd-row"><input value="${c.cmd}" data-cmd="${i}" placeholder="Comando"><input value="${c.label}" data-lbl="${i}" placeholder="Label"><button class="btn btn-sm btn-danger" onclick="removeCmd(${i})">✕</button></div>`).join('');
-}
-function collectCmds() {
-  return [...document.querySelectorAll('[data-cmd]')].map((el, i) => ({
-    cmd: el.value, label: document.querySelector(`[data-lbl="${i}"]`).value
-  }));
-}
-function addCmd() {
-  const list = collectCmds();
-  list.push({cmd: '', label: ''});
-  renderCmds(list);
-}
-function removeCmd(i) {
-  const list = collectCmds();
-  list.splice(i, 1);
-  renderCmds(list);
-}
-
-// === Phases ===
-function renderPhases(phases) {
-  const el = document.getElementById('phases-list');
-  el.innerHTML = phases.map((p, i) => `<div class="phase-card"><div class="phase-header"><strong>#${p.id} ${p.title}</strong><select data-pstatus="${i}"><option value="completed" ${p.status==='completed'?'selected':''}>Concluído</option><option value="in_progress" ${p.status==='in_progress'?'selected':''}>Em Andamento</option><option value="upcoming" ${p.status==='upcoming'?'selected':''}>Próxima</option><option value="future" ${p.status==='future'?'selected':''}>Futura</option></select></div><label>Título</label><input value="${p.title}" data-ptitle="${i}"><label>Label do Status</label><input value="${p.status_label||''}" data-plabel="${i}"><label>Descrição</label><textarea data-pdesc="${i}">${p.description}</textarea></div>`).join('');
-}
-function collectPhases() {
-  return [...document.querySelectorAll('[data-ptitle]')].map((el, i) => ({
-    id: i + 1,
-    title: el.value,
-    status: document.querySelector(`[data-pstatus="${i}"]`).value,
-    status_label: document.querySelector(`[data-plabel="${i}"]`).value,
-    description: document.querySelector(`[data-pdesc="${i}"]`).value,
-  }));
-}
-
-// === Hobbies ===
-function renderHobbies(hobbies) {
-  const el = document.getElementById('hobbies-list');
-  el.innerHTML = hobbies.map((h, i) => `
-    <div class="hobby-card">
-      <label>Slug (URL)</label><input value="${h.slug || ''}" data-hslug="${i}">
-      <label>Ícone (React Icon)</label><input value="${h.icon || 'FaCube'}" data-hicon="${i}">
-      <label>Título</label><input value="${h.title || ''}" data-htitle="${i}">
-      <label>Descrição Curta</label><textarea data-hdesc="${i}">${h.description || ''}</textarea>
-      <label>Tópicos (JSON Array)</label>
-      <textarea data-htopics="${i}" style="font-family:monospace; font-size:0.8rem; height:120px;">${JSON.stringify(h.topics || [], null, 2)}</textarea>
-      <button class="btn btn-sm btn-danger" onclick="removeHobby(${i})" style="margin-top:.5rem">Remover Seção</button>
-    </div>`).join('');
-}
-function collectHobbies() {
-  return [...document.querySelectorAll('[data-hslug]')].map((el, i) => {
-    let topics = [];
-    try { topics = JSON.parse(document.querySelector(`[data-htopics="${i}"]`).value); } catch(e) {}
-    return {
-      slug: el.value,
-      icon: document.querySelector(`[data-hicon="${i}"]`).value,
-      title: document.querySelector(`[data-htitle="${i}"]`).value,
-      description: document.querySelector(`[data-hdesc="${i}"]`).value,
-      highlight: false,
-      topics: topics
-    };
   });
 }
+
+// State mutators
 function addHobby() {
-  const list = collectHobbies();
-  list.push({slug: '', icon: 'FaCube', title: 'Nova Seção', description: '', topics: []});
-  renderHobbies(list);
+  if (!profileData.personal_space.hobbies) profileData.personal_space.hobbies = [];
+  profileData.personal_space.hobbies.push({name: "Novo Universo", slug: "novo", icon: "FaCube", topics: []});
+  renderHobbies();
 }
-function removeHobby(i) {
-  const list = collectHobbies();
-  list.splice(i, 1);
-  renderHobbies(list);
+function removeHobby(hIdx) { profileData.personal_space.hobbies.splice(hIdx, 1); renderHobbies(); }
+function updateHobby(hIdx, field, val) { profileData.personal_space.hobbies[hIdx][field] = val; }
+
+function addTopic(hIdx) {
+  if (!profileData.personal_space.hobbies[hIdx].topics) profileData.personal_space.hobbies[hIdx].topics = [];
+  profileData.personal_space.hobbies[hIdx].topics.push({title: "", description: ""});
+  renderHobbies();
+}
+function removeTopic(hIdx, tIdx) { profileData.personal_space.hobbies[hIdx].topics.splice(tIdx, 1); renderHobbies(); }
+function updateTopic(hIdx, tIdx, field, val) { profileData.personal_space.hobbies[hIdx].topics[tIdx][field] = val; }
+
+async function saveProfile() {
+  // Sync basic fields
+  if(!profileData.profile) profileData.profile = {};
+  profileData.profile.name = document.getElementById('f-name').value;
+  profileData.profile.role = document.getElementById('f-role').value;
+  profileData.profile.status = document.getElementById('f-status').value;
+  profileData.profile.bio = document.getElementById('f-bio').value;
+  
+  if(!profileData.profile.socials) profileData.profile.socials = {};
+  profileData.profile.socials.github = document.getElementById('s-github').value;
+  profileData.profile.socials.linkedin = document.getElementById('s-linkedin').value;
+  profileData.profile.socials.email = document.getElementById('s-email').value;
+  profileData.profile.socials.pgp = document.getElementById('s-pgp').value;
+
+  if(!profileData.personal_space) profileData.personal_space = {};
+  profileData.personal_space.quote = {
+    text: document.getElementById('f-quote').value,
+    author: document.getElementById('f-quote-author').value
+  };
+
+  try {
+    showToast('Salvando...', 'success');
+    const r = await fetch(API + '/api/profile', { method: 'PUT', headers: authHeaders(), body: JSON.stringify(profileData) });
+    if (r.ok) {
+      showToast('✓ Alterações salvas com sucesso!');
+      // Force iframe refresh (bypass cache)
+      const iframe = document.getElementById('preview-frame');
+      iframe.src = iframe.src.split('?')[0] + '?t=' + new Date().getTime();
+    } else throw new Error();
+  } catch (e) { showToast('Erro ao salvar', 'error'); }
 }
 
-// === Images ===
-async function loadImages() {
+async function uploadCV(file) {
+  if (!file) return;
+  const fd = new FormData();
+  fd.append('file', file);
   try {
-    const r = await fetch(API + '/api/images', {headers: authHeaders()});
-    const imgs = await r.json();
-    const el = document.getElementById('img-grid');
-    el.innerHTML = imgs.map(name => `<div class="img-card"><img src="http://localhost:3000/images/${name}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22150%22 height=%22120%22><rect fill=%22%23292524%22 width=%22150%22 height=%22120%22/><text fill=%22%23a8a29e%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 font-size=%2212%22>${name}</text></svg>'"><p>${name}</p><button class="del" onclick="deleteImage('${name}')">✕</button></div>`).join('');
-  } catch(e) {}
+    showToast('Enviando Currículo...', 'success');
+    const res = await fetch(API + '/api/upload-cv', {method: 'POST', headers: {'Authorization': 'Bearer ' + sessionToken}, body: fd});
+    const data = await res.json();
+    if(data.status === 'ok') showToast('✓ Currículo enviado para ' + data.storage.toUpperCase());
+    else throw new Error();
+  } catch (e) { showToast('Erro no CV', 'error'); }
 }
+
 async function uploadFiles(files) {
-  for (const file of files) {
-    const fd = new FormData();
-    fd.append('file', file);
+  if (!files.length) return;
+  showToast('Enviando imagens...', 'success');
+  for (let f of files) {
+    const fd = new FormData(); fd.append('file', f);
     await fetch(API + '/api/upload-image', {method: 'POST', headers: {'Authorization': 'Bearer ' + sessionToken}, body: fd});
   }
+  showToast('✓ Imagens enviadas!');
   loadImages();
-  setStatus('✓ Imagens enviadas!', true);
 }
+
+async function loadImages() {
+  const r = await fetch(API + '/api/images');
+  const imgs = await r.json();
+  const grid = document.getElementById('img-grid');
+  grid.innerHTML = '';
+  imgs.forEach(name => {
+    const div = document.createElement('div');
+    div.className = "relative group aspect-square rounded overflow-hidden border border-earth-border bg-earth-dark flex items-center justify-center";
+    div.innerHTML = `
+      <img src="http://localhost:3000/images/${name}" class="w-full h-full object-cover">
+      <div class="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
+        <button onclick="deleteImage('${name}')" class="text-white bg-red-600 hover:bg-red-500 px-3 py-1.5 rounded text-xs font-bold shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-all">Excluir</button>
+      </div>
+    `;
+    grid.appendChild(div);
+  });
+}
+
 async function deleteImage(name) {
-  if (!confirm('Deletar ' + name + '?')) return;
+  if(!confirm('Tem certeza que deseja deletar ' + name + '?')) return;
   await fetch(API + '/api/images/' + name, {method: 'DELETE', headers: authHeaders()});
+  showToast('Imagem excluída');
   loadImages();
 }
 </script>

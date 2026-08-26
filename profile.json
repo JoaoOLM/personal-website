@@ -9,7 +9,7 @@
     "socials": {
       "linkedin": "https://linkedin.com/in/joaootavio",
       "email": "joaolangerm@gmail.com",
-      "pgp": "4A8B 9C1D 2E3F 4567 8901 2345 6789 ABCD EF01 2345"
+      "pgp": ""
     }
   },
   "terminal_context": {
@@ -87,7 +87,7 @@
         "icon": "FaBook",
         "title": "Lendo Atualmente",
         "description": "Designing Data-Intensive Applications — Martin Kleppmann",
-        "highlight": true,
+        "highlight": false,
         "topics": [
           {
             "title": "Designing Data-Intensive Applications",

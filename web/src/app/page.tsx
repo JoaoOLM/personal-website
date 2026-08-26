@@ -3,19 +3,18 @@ import Universe from "@/components/Universe";
 import Timeline from "@/components/Timeline";
 import Image from "next/image";
 import { FaGithub, FaLinkedin, FaEnvelope, FaKey, FaQuoteLeft } from "react-icons/fa";
-import fs from "fs";
-import path from "path";
+// Fetch profile data from API
+async function getProfileData() {
+  const apiUrl = process.env.API_URL || "http://127.0.0.1:8000";
+  const res = await fetch(`${apiUrl}/api/profile`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Failed to fetch profile");
+  return res.json();
+}
 
 export const dynamic = "force-dynamic";
 
-// Read profile data on the server
-function getProfileData() {
-  const profilePath = path.join(process.cwd(), "..", "profile.json");
-  return JSON.parse(fs.readFileSync(profilePath, "utf-8"));
-}
-
-export default function Home() {
-  const data = getProfileData();
+export default async function Home() {
+  const data = await getProfileData();
   const profile = data.profile;
   const socials = profile.socials || {};
   const quote = data.personal_space?.quote;
@@ -48,9 +47,14 @@ export default function Home() {
             <p className="text-foreground/60">{profile.role}</p>
           </div>
         </div>
-        <div className="flex items-center gap-2 glass px-4 py-2 rounded-full border border-forest-dark/30 shimmer">
-          <div className="w-2 h-2 rounded-full bg-forest-primary animate-pulse shadow-[0_0_10px_#22c55e]"></div>
-          <span className="text-xs text-foreground/80 font-medium">{profile.status}</span>
+        <div className="flex flex-col items-end gap-3">
+          <div className="flex items-center gap-2 glass px-4 py-2 rounded-full border border-forest-dark/30 shimmer">
+            <div className="w-2 h-2 rounded-full bg-forest-primary animate-pulse shadow-[0_0_10px_#22c55e]"></div>
+            <span className="text-xs text-foreground/80 font-medium">{profile.status}</span>
+          </div>
+          <a href={process.env.NEXT_PUBLIC_CV_URL || "/cv.pdf"} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-amber-accent/40 text-xs text-amber-accent hover:bg-amber-accent/10 transition-colors shadow-[0_0_10px_rgba(245,158,11,0.1)] hover:shadow-[0_0_15px_rgba(245,158,11,0.2)]">
+            Baixar Currículo
+          </a>
         </div>
       </header>
 

@@ -10,9 +10,11 @@ const iconMap: Record<string, any> = {
   FaGamepad,
 };
 
-function getProfileData() {
-  const profilePath = path.join(process.cwd(), "..", "profile.json");
-  return JSON.parse(fs.readFileSync(profilePath, "utf-8"));
+async function getProfileData() {
+  const apiUrl = process.env.API_URL || "http://127.0.0.1:8000";
+  const res = await fetch(`${apiUrl}/api/profile`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Failed to fetch profile");
+  return res.json();
 }
 
 export const dynamic = "force-dynamic";
@@ -20,7 +22,7 @@ export const dynamic = "force-dynamic";
 export default async function UniversePage({ params }: { params: Promise<{ slug: string }> }) {
   const resolvedParams = await params;
   const slug = resolvedParams.slug;
-  const data = getProfileData();
+  const data = await getProfileData();
   const hobbies = data.personal_space?.hobbies || [];
   const item = hobbies.find((h: any) => h.slug === slug);
 
