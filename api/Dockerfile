@@ -13,7 +13,6 @@ RUN cd api && uv sync --no-install-project
 
 # Copiar o restante da API e o arquivo de contexto
 COPY api ./api
-COPY profile.json .
 
 # Expor a porta que o Cloud Run usa
 ENV PORT=8000
