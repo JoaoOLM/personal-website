@@ -59,6 +59,10 @@
                <input id="f-status" class="w-full bg-earth-bg border border-earth-border p-2 rounded outline-none">
              </div>
              <div>
+               <label class="block text-sm text-forest-primary mb-1">Headline (Subtítulo da página inicial, separado por vírgula)</label>
+               <input id="f-headline" class="w-full bg-earth-bg border border-earth-border p-2 rounded outline-none" placeholder="Ex: Especialista em Cloud, Criador de Conteúdo">
+             </div>
+             <div>
                <label class="block text-sm text-forest-primary mb-1">Bio Principal</label>
                <textarea id="f-bio" rows="4" class="w-full bg-earth-bg border border-earth-border p-2 rounded outline-none"></textarea>
              </div>
@@ -243,6 +247,7 @@ async function loadData() {
   document.getElementById('f-name').value = profileData.profile?.name || '';
   document.getElementById('f-role').value = profileData.profile?.role || '';
   document.getElementById('f-status').value = profileData.profile?.status || '';
+  document.getElementById('f-headline').value = profileData.profile?.headline || '';
   document.getElementById('f-bio').value = profileData.profile.bio || '';
   document.getElementById('f-quote').value = profileData.personal_space?.quote?.text || '';
   document.getElementById('f-quote-author').value = profileData.personal_space?.quote?.author || '';
@@ -429,6 +434,7 @@ async function saveProfile() {
   profileData.profile.name = document.getElementById('f-name').value;
   profileData.profile.role = document.getElementById('f-role').value;
   profileData.profile.status = document.getElementById('f-status').value;
+  profileData.profile.headline = document.getElementById('f-headline').value;
   profileData.profile.bio = document.getElementById('f-bio').value;
   
   if (!profileData.master_degree) profileData.master_degree = {};

@@ -45,3 +45,9 @@ api/uv.lock.bak
 
 # === Images ===
 web/public/images/
+
+# === Databases ===
+*.db
+*.sqlite3
+api/portfolio.db
+api/cache.db
